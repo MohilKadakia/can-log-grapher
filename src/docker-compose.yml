@@ -1,0 +1,39 @@
+services:
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/etc:/etc/grafana:ro
+    depends_on:
+      - influxdb
+    environment:
+      - GF_SECURITY_ADMIN_USER=uwfe
+      - GF_SECURITY_ADMIN_PASSWORD=uwfepassword
+      - DOCKER_INFLUXDB_INIT_ORG=uwfe
+      - DOCKER_INFLUXDB_INIT_BUCKET=log_data
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=secrettoken
+
+  # parser:
+  #   build: ./csv_parser
+  #   container_name: uwfe_parser
+
+  influxdb:
+    image: influxdb:2.7-alpine
+    volumes:
+      - influxdb-vol:/.influxdb
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=uwfe
+      - DOCKER_INFLUXDB_INIT_PASSWORD=uwfepassword
+      - DOCKER_INFLUXDB_INIT_ORG=uwfe
+      - DOCKER_INFLUXDB_INIT_BUCKET=log_data
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=secrettoken
+      - INFLUXDB_HTTP_HTTPS_ENABLED=true
+    ports:
+      - "8086:8086"
+
+volumes:
+  influxdb-vol:
+  grafana-storage:
