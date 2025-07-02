@@ -1,0 +1,11 @@
+apiVersion: 1 # Specifies the provisioning file version
+
+datasources:
+  - name: Infinity # The name of your data source (appears in Grafana UI)
+    type: yesoreyeram-infinity-datasource
+    access: proxy # Or 'direct' depending on your network setup and data source requirements
+    uid: infinity-datasource-uid # A unique identifier for this data source
+    isDefault: true # Set to true if you want this to be the default data source for new panels
+    orgId: 1 # The ID of the organization in Grafana (usually 1 for the default organization)
+    version: 1 # Version of this data source configuration. Increment to force updates.
+    editable: true # Set to false to prevent users from editing it in the Grafana UI
