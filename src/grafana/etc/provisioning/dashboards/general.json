@@ -24,7 +24,7 @@
     {
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "deq27h232yy9sf"
+        "uid": "infinity-datasource-uid"
       },
       "fieldConfig": {
         "defaults": {
