@@ -1,7 +1,7 @@
 /* Main widget styling */
 QWidget {
-    background-color: #1e1e1e;
-    color: #e1e1e1;
+    background-color: #f8f9fa;
+    color: #2c3e50;
     font-family: 'Segoe UI', 'Arial', sans-serif;
 }
 
@@ -12,13 +12,13 @@ QWidget {
     color: #ffffff;
     margin-bottom: 20px;
     padding: 20px;
-    background: #202f50;
+    background: #3498db;
     border-radius: 10px;
 }
 
 /* File selection button */
 #file_btn {
-    background: #2c3e69;
+    background: #3498db;
     color: white;
     border: none;
     border-radius: 12px;
@@ -28,16 +28,16 @@ QWidget {
 }
 
 #file_btn:hover {
-    background: #202f50;
+    background: #2980b9;
 }
 
 #file_btn:pressed {
-    background: #182748;
+    background: #1f5f8b;
 }
 
 /* Folder selection button */
 #folder_btn {
-    background: #2c3e69;
+    background: #27ae60;
     color: white;
     border: none;
     border-radius: 12px;
@@ -47,16 +47,16 @@ QWidget {
 }
 
 #folder_btn:hover {
-    background: #202f50;
+    background: #229954;
 }
 
 #folder_btn:pressed {
-    background: #182748;
+    background: #1e7e34;
 }
 
 /* Update button */
 #update_btn {
-    background: #8b3411;
+    background: #f39c12;
     color: white;
     border: none;
     border-radius: 12px;
@@ -66,19 +66,19 @@ QWidget {
 }
 
 #update_btn:hover {
-    background: #742b0e;
+    background: #e67e22;
 }
 
 #update_btn:pressed {
-    background: #5a220c;
+    background: #d68910;
 }
 
 /* Sender frame */
 #sender_frame {
-    border: 2px solid #374151; 
+    border: 2px solid #bdc3c7; 
     border-radius: 15px; 
     padding: 20px;
-    background-color: #2d2d2d;
+    background-color: #ffffff;
     margin: 10px 0px;
 }
 
@@ -87,34 +87,34 @@ QWidget {
     font-size: 22px; 
     font-weight: 700; 
     margin-bottom: 15px; 
-    color: #e1e1e1;
+    color: #2c3e50;
     padding: 10px;
-    background-color: #374151;
+    background-color: #ecf0f1;
     border-radius: 8px;
     font-family: 'Segoe UI', 'Arial', sans-serif;
 }
 
 /* Scroll area */
 #scroll_area {
-    border: 1px solid #374151;
+    border: 1px solid #bdc3c7;
     border-radius: 8px;
-    background-color: #2d2d2d;
+    background-color: #ffffff;
 }
 
 #scroll_area QScrollBar:vertical {
-    background-color: #374151;
+    background-color: #ecf0f1;
     width: 12px;
     border-radius: 6px;
 }
 
 #scroll_area QScrollBar::handle:vertical {
-    background-color: #6b7280;
+    background-color: #95a5a6;
     border-radius: 6px;
     min-height: 80px;
 }
 
 #scroll_area QScrollBar::handle:vertical:hover {
-    background-color: #9ca3af;
+    background-color: #7f8c8d;
 }
 
 /* Default checkbox styling */
@@ -122,7 +122,7 @@ QWidget {
     font-size: 16px; 
     padding: 8px 12px; 
     background-color: transparent;
-    color: #e1e1e1;
+    color: #2c3e50;
     font-weight: 500;
     font-family: 'Segoe UI', 'Arial', sans-serif;
     border-radius: 6px;
@@ -130,24 +130,24 @@ QWidget {
 }
 
 #sender_checkbox:hover {
-    background-color: #374151;
-    color: #60a5fa;
+    background-color: #e8f4fd;
+    color: #2980b9;
 }
 
 #sender_checkbox::indicator {
     width: 18px;
     height: 18px;
     border-radius: 3px;
-    border: 2px solid #6b7280;
+    border: 2px solid #bdc3c7;
 }
 
 #sender_checkbox::indicator:checked {
-    background-color: #2563eb;
-    border: 2px solid #1d4ed8;
+    background-color: #3498db;
+    border: 2px solid #2980b9;
 }
 
 #sender_checkbox::indicator:hover {
-    border: 2px solid #2563eb;
+    border: 2px solid #3498db;
 }
 
 /* Highlighted checkbox styling */
@@ -155,7 +155,7 @@ QWidget {
     font-size: 16px; 
     padding: 8px 12px; 
     background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
-                              stop: 0 #2563eb, stop: 1 #1d4ed8);
+                              stop: 0 #3498db, stop: 1 #2980b9);
     color: white;
     border-radius: 6px;
     font-weight: 600;
@@ -165,7 +165,7 @@ QWidget {
 
 #sender_checkbox_highlighted:hover {
     background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
-                              stop: 0 #1d4ed8, stop: 1 #1e40af);
+                              stop: 0 #2980b9, stop: 1 #1f5f8b);
 }
 
 #sender_checkbox_highlighted::indicator {
@@ -177,12 +177,12 @@ QWidget {
 }
 
 #sender_checkbox_highlighted::indicator:checked {
-    background-color: #1d4ed8;
+    background-color: #2980b9;
     border: 2px solid white;
 }
 
 #select_all_btn {
-    background: #1e40af;
+    background: #3498db;
     color: white;
     border: none;
     border-radius: 12px;
@@ -191,20 +191,12 @@ QWidget {
     font-weight: 600;
 }
 
-#select_all_btn:hover {
-    background: #1d4ed8;
-}
-
 #deselect_all_btn {
-    background: #4b5563;
-    color: #e1e1e1;
+    background: #e8f4fd;
+    color: black;
     border: none;
     border-radius: 12px;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: 600;
-}
-
-#deselect_all_btn:hover {
-    background: #6b7280;
 }
