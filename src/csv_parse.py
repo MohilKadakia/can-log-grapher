@@ -4,7 +4,7 @@ from datetime import datetime
 def parse_csv(filepath):
     """
     Parses a CSV file with format: Timestamp, SignalName, Value
-    Populates self.rows with dicts: [{'timestamp': ..., 'signal': ..., 'value': ...}, ...]
+    Populates self.rows with dicts: [{'date_time': ..., 'signal': ..., 'value': ...}, ...]
     """
     BASE_TIME = datetime(2025, 1, 1, 0, 0, 0)
     
@@ -19,6 +19,7 @@ def parse_csv(filepath):
     df["date_time"] = df["date_time"].dt.strftime('%Y-%m-%dT%H:%M:%S.%f')
     
     # Drop intermediate column
+    df = df.drop("timestamp", axis=1)
     df = df.drop("timestamp_int", axis=1)
     
     return df.to_dict(orient="records")
