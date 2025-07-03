@@ -43,13 +43,13 @@ class CANLogUploader(QWidget):
         layout.addWidget(title)
 
         # Enhanced file selection button
-        self.file_btn = QPushButton("📁 Select CSV File")
+        self.file_btn = QPushButton("Select CSV File")
         self.file_btn.clicked.connect(self.select_file)
         self.file_btn.setObjectName("file_btn")
         layout.addWidget(self.file_btn)
 
         # Enhanced folder selection button
-        self.folder_btn = QPushButton("📂 Select Folder of CSVs")
+        self.folder_btn = QPushButton("Select Folder of CSVs")
         self.folder_btn.clicked.connect(self.select_folder)
         self.folder_btn.setObjectName("folder_btn")
         layout.addWidget(self.folder_btn)
