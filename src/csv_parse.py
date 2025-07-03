@@ -1,38 +1,36 @@
 import pandas as pd
-from datetime import timedelta, datetime
-from io import StringIO
-import csv
+from datetime import datetime
 
 def parse_csv(filepath):
     """
     Parses a CSV file with format: Timestamp, SignalName, Value
     Populates self.rows with dicts: [{'timestamp': ..., 'signal': ..., 'value': ...}, ...]
     """
-    rows = []
     BASE_TIME = datetime(2025, 1, 1, 0, 0, 0)
-    for df in pd.read_csv(filepath, chunksize=100_000, names=["timestamp", "sender", "value"]):
-        df["date_time"] = df["timestamp"].apply(lambda x: BASE_TIME + timedelta(milliseconds=int(x, 16)))
-        rows.extend(df.to_dict(orient="records"))
-    return rows
+    
+    # Read entire file at once if memory allows, or use larger chunks
+    df = pd.read_csv(filepath, names=["timestamp", "sender", "value"])
+    
+    # Vectorized conversion - much faster than apply()
+    df["timestamp_int"] = df["timestamp"].apply(lambda x: int(x, 16))
+    df["date_time"] = pd.to_datetime(BASE_TIME) + pd.to_timedelta(df["timestamp_int"], unit='ms')
+
+    # Convert datetime to string immediately
+    df["date_time"] = df["date_time"].dt.strftime('%Y-%m-%dT%H:%M:%S.%f')
+    
+    # Drop intermediate column
+    df = df.drop("timestamp_int", axis=1)
+    
+    return df.to_dict(orient="records")
 
 def rows_to_csv_bytes(rows):
     """
     Convert a list of dicts (rows) to CSV bytes.
-    Handles pandas Timestamp in 'date_time' by converting to ISO string.
     """
     if not rows:
         return b""
-
-    # Ensure all keys are present in every row
-    fieldnames = list(rows[0].keys())
-
-    output = StringIO()
-    writer = csv.DictWriter(output, fieldnames=fieldnames)
-    writer.writeheader()
-    for row in rows:
-        row_copy = row.copy()
-        # Convert pandas Timestamp to string if needed
-        if "date_time" in row_copy and hasattr(row_copy["date_time"], "isoformat"):
-            row_copy["date_time"] = row_copy["date_time"].isoformat()
-        writer.writerow(row_copy)
-    return output.getvalue().encode("utf-8")
+    
+    # Convert back to DataFrame for efficient CSV writing
+    df = pd.DataFrame(rows)
+    csv_data = df.to_csv(index=False).encode("utf-8")
+    return csv_data
