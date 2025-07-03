@@ -259,8 +259,12 @@ class CANLogUploader(QWidget):
 
     def load_stylesheet(self, css_file):
         """Load CSS stylesheet from file."""
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        css_path = os.path.join(current_dir, css_file)
+
         try:
-            with open(css_file, 'r') as f:
+            with open(css_path, 'r') as f:
                 self.setStyleSheet(f.read())
         except FileNotFoundError:
             print(f"CSS file {css_file} not found, using default styles")
