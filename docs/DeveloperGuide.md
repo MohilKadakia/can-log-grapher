@@ -120,9 +120,10 @@ docker-compose down
 ```
 can-log-grapher/
 ├── src/
-│   ├── main.py          # GUI application entry point
-│   ├── server.py        # HTTP server for Grafana
-│   ├── requirements.txt # Python dependencies
-│   └── csv_parse.py     # CSV parsing utilities
-└── docs/                # Documentation
+│   ├── main.py            # Application entry point
+│   ├── /app               # PyQT Application
+│   ├── /grafana/etc       # Grafana initilization files
+│   ├── /parsing           # Raw log parsing scripts
+│   └── docker-compose.yml # Docker compose file
+└── docs/                  # Documentation
 ```
