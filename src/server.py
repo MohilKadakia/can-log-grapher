@@ -26,7 +26,7 @@ class CSVDownloadHandler(BaseHTTPRequestHandler):
                 self.wfile.write(csv_bytes)
             else:
                 # Send default CSV header when no data
-                default_csv = b"timestamp,sender,value,date_time\n"
+                default_csv = b"sender,value,date_time\n"
                 self.send_response(200)
                 self.send_header("Content-Type", "text/csv")
                 self.send_header("Content-Disposition", "attachment; filename=LOG.csv")
