@@ -9,9 +9,9 @@ from io import StringIO
 import threading
 import re
 
-from server import run_server, update_data
-from processing_threads import CSVParsingThread, CSVProcessingThread
-from shared_data import shared_data_manager
+from app.server import run_server, update_data
+from app.processing_threads import CSVParsingThread, CSVProcessingThread
+from app.shared_data import shared_data_manager
 
 class CANLogUploader(QWidget):
     def __init__(self):
@@ -505,7 +505,7 @@ class CANLogUploader(QWidget):
         window = self.geometry()
         
         # Calculate center position
-        x = (screen.width() - window.width()) // 2
+        x = window.x()
         y = (screen.height() - window.height()) // 2
         
         # Move window to center
