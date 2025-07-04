@@ -1,6 +1,6 @@
 /* Main widget styling */
 QWidget {
-    background-color: #1e1e1e;
+    background-color: #191919;
     color: #e1e1e1;
     font-family: 'Segoe UI', 'Arial', sans-serif;
 }
@@ -10,9 +10,8 @@ QWidget {
     font-size: 36px; 
     font-weight: 700;
     color: #ffffff;
-    margin-bottom: 20px;
+    border: 2px solid #374151;
     padding: 20px;
-    background: #202f50;
     border-radius: 10px;
 }
 
@@ -21,8 +20,8 @@ QWidget {
     background: #2c3e69;
     color: white;
     border: none;
-    border-radius: 12px;
-    padding: 18px 28px;
+    border-radius: 8px;
+    padding: 18px;
     font-size: 18px;
     font-weight: 600;
 }
@@ -32,25 +31,6 @@ QWidget {
 }
 
 #file_btn:pressed {
-    background: #182748;
-}
-
-/* Folder selection button */
-#folder_btn {
-    background: #2c3e69;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 18px 28px;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-#folder_btn:hover {
-    background: #202f50;
-}
-
-#folder_btn:pressed {
     background: #182748;
 }
 
@@ -150,6 +130,17 @@ QWidget {
     border: 2px solid #2563eb;
 }
 
+#sender_checkbox_highlight {
+    font-size: 16px; 
+    padding: 8px 12px; 
+    background-color: #0d4743;
+    color: #e1e1e1;
+    font-weight: 500;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    border-radius: 6px;
+    margin: 2px;
+}
+
 /* Highlighted checkbox styling */
 #sender_checkbox_highlighted {
     font-size: 16px; 
@@ -207,4 +198,161 @@ QWidget {
 
 #deselect_all_btn:hover {
     background: #6b7280;
+}
+
+/* Loading screen styling */
+#loading_frame {
+    border: 2px solid #374151;
+    border-radius: 15px;
+    padding: 30px;
+    background-color: #2d2d2d;
+    margin: 20px 0px;
+}
+
+#loading_label {
+    font-size: 24px;
+    font-weight: 700;
+    color: #e1e1e1;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #374151;
+    border-radius: 8px;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+
+#progress_bar {
+    background-color: #374151;
+    border: 2px solid #4b5563;
+    border-radius: 8px;
+    height: 25px;
+    margin: 15px 0px;
+}
+
+#progress_bar::chunk {
+    background: #127432;
+    border-radius: 6px;
+    margin: 2px;
+}
+
+#progress_text {
+    font-size: 16px;
+    font-weight: 500;
+    color: #9ca3af;
+    margin-top: 10px;
+    padding: 8px;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    background-color: transparent;
+}
+
+/* Source label styling */
+#source_label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #9ca3af;
+    margin: 10px 0px;
+    padding: 12px;
+    background-color: #374151;
+    border-radius: 8px;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+
+/* Regex filter styling */
+#regex_label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e1e1e1;
+    padding: 8px;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+
+#regex_input {
+    background-color: #374151;
+    color: #e1e1e1;
+    border: 2px solid #4b5563;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    selection-background-color: #2563eb;
+}
+
+#regex_input:focus {
+    border: 2px solid #2563eb;
+    background-color: #2d2d2d;
+}
+
+#regex_input:hover {
+    border: 2px solid #6b7280;
+}
+
+#regex_clear_btn {
+    background: #6b7280;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 70px;
+}
+
+#regex_clear_btn:hover {
+    background: #9ca3af;
+}
+
+#regex_clear_btn:pressed {
+    background: #4b5563;
+}
+
+#select_regex_btn {
+    background: #059669;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+#select_regex_btn:hover {
+    background: #047857;
+}
+
+#select_regex_btn:pressed {
+    background: #065f46;
+}
+
+/* Regex matched checkbox styling */
+#sender_checkbox_regex_match {
+    font-size: 16px; 
+    padding: 8px 12px; 
+    background-color: #fef3c7;
+    color: #92400e;
+    font-weight: 600;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    border: 2px solid #f59e0b;
+    border-radius: 6px;
+    margin: 2px;
+}
+
+#sender_checkbox_regex_match:hover {
+    background-color: #fde68a;
+    color: #78350f;
+}
+
+#sender_checkbox_regex_match::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    border: 2px solid #f59e0b;
+    background-color: #fef3c7;
+}
+
+#sender_checkbox_regex_match::indicator:checked {
+    background-color: #f59e0b;
+    border: 2px solid #d97706;
+}
+
+#sender_checkbox_regex_match::indicator:hover {
+    border: 2px solid #d97706;
 }

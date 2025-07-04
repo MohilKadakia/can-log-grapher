@@ -2,11 +2,12 @@ import sys
 import os
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QMessageBox, QLabel, QSpacerItem, QSizePolicy, 
-    QCheckBox, QScrollArea, QFrame, QProgressBar, QHBoxLayout
+    QCheckBox, QScrollArea, QFrame, QProgressBar, QHBoxLayout, QLineEdit, QDesktopWidget
 )
 from PyQt5.QtCore import Qt
 from io import StringIO
 import threading
+import re
 
 from server import run_server, update_data
 from processing_threads import CSVParsingThread, CSVProcessingThread
@@ -45,17 +46,22 @@ class CANLogUploader(QWidget):
         title.setObjectName("title")
         layout.addWidget(title)
 
-        # Enhanced file selection button
+        # Create horizontal layout for buttons
+        button_layout = QHBoxLayout()
+
+        # File selection button
         self.file_btn = QPushButton("Select CSV File")
         self.file_btn.clicked.connect(self.select_file)
         self.file_btn.setObjectName("file_btn")
-        layout.addWidget(self.file_btn)
+        button_layout.addWidget(self.file_btn)
 
-        # Enhanced folder selection button
+        # Folder selection button
         self.folder_btn = QPushButton("Select Folder of CSVs")
         self.folder_btn.clicked.connect(self.select_folder)
-        self.folder_btn.setObjectName("folder_btn")
-        layout.addWidget(self.folder_btn)
+        self.folder_btn.setObjectName("file_btn")
+        button_layout.addWidget(self.folder_btn)
+
+        layout.addLayout(button_layout)
 
         # Current source display
         self.source_label = QLabel("No file or folder selected")
@@ -99,6 +105,25 @@ class CANLogUploader(QWidget):
         sender_title.setObjectName("sender_title")
         self.sender_layout.addWidget(sender_title)
         
+        # Add regex filter
+        regex_layout = QHBoxLayout()
+        regex_label = QLabel("Search:")
+        regex_label.setObjectName("regex_label")
+        regex_layout.addWidget(regex_label)
+        
+        self.regex_input = QLineEdit()
+        self.regex_input.setPlaceholderText("Enter regex pattern")
+        self.regex_input.setObjectName("regex_input")
+        self.regex_input.textChanged.connect(self.apply_regex_filter)
+        regex_layout.addWidget(self.regex_input)
+        
+        self.regex_clear_btn = QPushButton("Clear")
+        self.regex_clear_btn.clicked.connect(self.clear_regex_filter)
+        self.regex_clear_btn.setObjectName("regex_clear_btn")
+        regex_layout.addWidget(self.regex_clear_btn)
+        
+        self.sender_layout.addLayout(regex_layout)
+        
         # Add select/deselect all buttons
         button_layout = QHBoxLayout()
         
@@ -111,6 +136,12 @@ class CANLogUploader(QWidget):
         self.deselect_all_btn.clicked.connect(self.deselect_all_checkboxes)
         self.deselect_all_btn.setObjectName("deselect_all_btn")
         button_layout.addWidget(self.deselect_all_btn)
+        
+        # Add regex selection buttons
+        self.select_regex_btn = QPushButton("Select Filtered")
+        self.select_regex_btn.clicked.connect(self.select_regex_matches)
+        self.select_regex_btn.setObjectName("select_regex_btn")
+        button_layout.addWidget(self.select_regex_btn)
         
         self.sender_layout.addLayout(button_layout)
         
@@ -156,6 +187,9 @@ class CANLogUploader(QWidget):
             self.update_btn.setEnabled(False)
             self.select_all_btn.setEnabled(False)
             self.deselect_all_btn.setEnabled(False)
+            self.select_regex_btn.setEnabled(False)
+            self.regex_input.setEnabled(False)
+            self.regex_clear_btn.setEnabled(False)
 
     def hide_loading_screen(self, enable_sender_controls=True):
         """Hide the loading screen and re-enable buttons."""
@@ -167,6 +201,9 @@ class CANLogUploader(QWidget):
             self.update_btn.setEnabled(True)
             self.select_all_btn.setEnabled(True)
             self.deselect_all_btn.setEnabled(True)
+            self.select_regex_btn.setEnabled(True)
+            self.regex_input.setEnabled(True)
+            self.regex_clear_btn.setEnabled(True)
 
     def on_parsing_progress(self, message):
         """Update progress text during parsing."""
@@ -190,6 +227,7 @@ class CANLogUploader(QWidget):
 
         self.sender_frame.show()
         self.update_btn.show()
+        self.recenter_window()
         
         filtered_count = len(self.get_filtered_data())
         QMessageBox.information(self, "Success", f"Server updated with {filtered_count} rows from selected senders.")
@@ -386,6 +424,92 @@ class CANLogUploader(QWidget):
         """Deselect all sender checkboxes."""
         for checkbox in self.sender_checkboxes.values():
             checkbox.setChecked(False)
+
+    def apply_regex_filter(self):
+        """Apply regex filter to highlight matching signals."""
+        pattern = self.regex_input.text().strip()
+        
+        if not pattern:
+            # If no pattern, reset all checkboxes to normal style
+            for sender in self.sender_order:
+                checkbox = self.sender_checkboxes[sender]
+                checkbox.setObjectName("sender_checkbox")
+                checkbox.style().unpolish(checkbox)
+                checkbox.style().polish(checkbox)
+            return
+        
+        try:
+            regex = re.compile(pattern, re.IGNORECASE)
+            
+            for sender in self.sender_order:
+                checkbox = self.sender_checkboxes[sender]
+                
+                if regex.search(sender):
+                    # Show matching signals
+                    checkbox.show()
+                    # checkbox.setObjectName("sender_checkbox_highlight")
+                else:
+                    # Hide non-matching signals
+                    checkbox.hide()
+                    # checkbox.setObjectName("sender_checkbox")
+                
+                # Force style refresh
+                checkbox.style().unpolish(checkbox)
+                checkbox.style().polish(checkbox)
+                
+        except re.error:
+            # Invalid regex - reset all to normal style
+            for sender in self.sender_order:
+                checkbox = self.sender_checkboxes[sender]
+                checkbox.setObjectName("sender_checkbox")
+                checkbox.style().unpolish(checkbox)
+                checkbox.style().polish(checkbox)
+
+    def clear_regex_filter(self):
+        """Clear the regex filter and reset highlighting."""
+        self.regex_input.clear()
+        for sender in self.sender_order:
+            checkbox = self.sender_checkboxes[sender]
+            checkbox.show()
+
+        self.apply_regex_filter()
+
+    def select_regex_matches(self):
+        """Select only the signals that match the current regex pattern."""
+        pattern = self.regex_input.text().strip()
+        
+        if not pattern:
+            QMessageBox.warning(self, "Warning", "Please enter a regex pattern first!")
+            return
+        
+        try:
+            regex = re.compile(pattern, re.IGNORECASE)
+            
+            # First deselect all
+            self.deselect_all_checkboxes()
+            
+            # Then select only matching ones
+            for sender in self.sender_order:
+                if regex.search(sender):
+                    self.sender_checkboxes[sender].setChecked(True)
+                    
+        except re.error as e:
+            QMessageBox.warning(self, "Invalid Regex", f"Invalid regex pattern: {str(e)}")
+
+    def recenter_window(self):
+        """Recenter the window on screen after content changes."""
+        # Get screen geometry
+        screen = QDesktopWidget().screenGeometry()
+        
+        # Get window geometry
+        window = self.geometry()
+        
+        # Calculate center position
+        x = (screen.width() - window.width()) // 2
+        y = (screen.height() - window.height()) // 2
+        
+        # Move window to center
+        self.move(x, y)
 
     def closeEvent(self, event):
         """Clean up resources when window closes."""
