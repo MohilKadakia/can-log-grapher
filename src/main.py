@@ -2,7 +2,7 @@ import sys
 import argparse
 from PyQt5.QtWidgets import QApplication
 
-from gui import CANLogUploader
+from app.gui import CANLogUploader
 
 def parse_arguments():
     """Parse command line arguments."""
