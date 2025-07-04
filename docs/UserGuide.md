@@ -1,6 +1,49 @@
 # User Guide
 
+## TLDR Setup
+
+### Prerequisites
+
+- Docker
+- Git
+- Python 3.8 or higher
+
+### Commands
+```bash
+git clone <repository-url>
+cd can-log-grapher
+cd ./src 
+# At this point you should be in the src folder of the repository
+
+########################
+# Optional: using venv
+python -m venv venv
+
+# Windows
+.\venv\Scripts\activate
+# Linux/macOS
+source venv/bin/activate
+
+########################
+# Running the Application
+# In the /src folder
+pip install -r requirements.txt
+
+# Start the application
+python main.py
+
+# Start the Grafana Dashboard
+docker-compose up -d 
+# The dashboard can be accessed from localhost:3000
+```
+
 ## Getting Started
+
+### Requirements
+To run this grapher you need:
+
+- Docker
+- Python 3.8 or higher
 
 ### Installation Steps
 
@@ -41,6 +84,12 @@
    ```bash
    docker-compose up -d
    ```
+
+### Accessing the Dashboard
+
+The main.py file should open up an application for you to upload parsed CAN files to.
+
+To access a graph of this, you must run the docker-compose command, and go to `localhost:3000`. From the page you can access a Grafana dashboard that will graph the datapoints given.
 
 ### Deactivation Steps
 Docker doesn't close when you close the terminal. To ensure that the container shuts down you must run this command in the `src` folder:
