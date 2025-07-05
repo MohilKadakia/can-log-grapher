@@ -1,6 +1,6 @@
 import threading
-import uuid
 from typing import Dict, List, Any
+import uuid
 
 class SharedDataManager:
     """Manages shared data between threads using references instead of copying."""
