@@ -16,20 +16,19 @@ class CSVDownloadHandler(BaseHTTPRequestHandler):
         if self.path == "/":
             with _data_lock:
                 csv_content = _data.getvalue()
+
+            csv_bytes = csv_content.encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/csv")
+            self.send_header("Content-Disposition", "attachment; filename=LOG.csv")
+
             if csv_content:
-                csv_bytes = csv_content.encode("utf-8")
-                self.send_response(200)
-                self.send_header("Content-Type", "text/csv")
-                self.send_header("Content-Disposition", "attachment; filename=LOG.csv")
                 self.send_header("Content-Length", str(len(csv_bytes)))
                 self.end_headers()
                 self.wfile.write(csv_bytes)
             else:
                 # Send default CSV header when no data
                 default_csv = b"sender,value,date_time\n"
-                self.send_response(200)
-                self.send_header("Content-Type", "text/csv")
-                self.send_header("Content-Disposition", "attachment; filename=LOG.csv")
                 self.send_header("Content-Length", str(len(default_csv)))
                 self.end_headers()
                 self.wfile.write(default_csv)

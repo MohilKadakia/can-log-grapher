@@ -1,7 +1,8 @@
 import os
 from PyQt5.QtCore import QThread, pyqtSignal
-from app.shared_data import shared_data_manager
-from app.csv_parse import parse_csv, rows_to_csv_bytes
+
+from app.threading_scripts.shared_data import shared_data_manager
+from parsing.csv_reading.csv_parse import parse_csv, rows_to_csv_bytes
 
 class CSVParsingThread(QThread):
     """Thread for parsing CSV files in the background."""

@@ -1,17 +1,16 @@
-import sys
 import os
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QMessageBox, QLabel, QSpacerItem, QSizePolicy, 
+    QWidget, QVBoxLayout, QPushButton, QFileDialog, QMessageBox, QLabel, 
     QCheckBox, QScrollArea, QFrame, QProgressBar, QHBoxLayout, QLineEdit, QDesktopWidget
 )
-from PyQt5.QtCore import Qt
 from io import StringIO
+from PyQt5.QtCore import Qt
 import threading
 import re
 
 from app.server import run_server, update_data
-from app.processing_threads import CSVParsingThread, CSVProcessingThread
-from app.shared_data import shared_data_manager
+from app.threading_scripts.processing_threads import CSVParsingThread, CSVProcessingThread
+from app.threading_scripts.shared_data import shared_data_manager
 
 class CANLogUploader(QWidget):
     def __init__(self):
