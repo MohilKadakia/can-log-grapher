@@ -35,15 +35,18 @@ python main.py
 # Start the Grafana Dashboard
 docker-compose up -d 
 # The dashboard can be accessed from localhost:3000
+# Username: uwfe
+# Password: uwfepassword
 ```
 
 ## Getting Started
 
 ### Requirements
-To run this grapher you need:
+To run this application you will need:
 
 - Docker
 - Python 3.8 or higher
+- Git
 
 ### Installation Steps
 
@@ -89,7 +92,13 @@ To run this grapher you need:
 
 The main.py file should open up an application for you to upload parsed CAN files to.
 
-To access a graph of this, you must run the docker-compose command, and go to `localhost:3000`. From the page you can access a Grafana dashboard that will graph the datapoints given.
+To access a graph of this, you must run the docker-compose command (as shown above in step 5 of the installation), and go to `localhost:3000`. It will prompt you to sign in, the sign in information is:
+
+**Username:** uwfe 
+
+**Password:** uwfepassword
+
+From the page you can access a Grafana dashboard that will graph the datapoints.
 
 ### Deactivation Steps
 Docker doesn't close when you close the terminal. To ensure that the container shuts down you must run this command in the `src` folder:
@@ -102,14 +111,16 @@ docker-compose down
 ## Uploading Files
 
 ### Single File Upload
-Use the file selection dialog to choose a CSV file containing CAN log data.
+Use the file selection dialog to choose a CSV/TXT file containing CAN log data.
 
 ### Batch Upload
-Select a folder containing multiple CSV files for batch processing.
+Select a folder containing multiple CSV/TXT files for batch processing.
 
 ## Data Filtering
 
 Use the checkbox interface to filter data by CAN sender IDs.
+
+You can also use the Regex filter textbox above the checkboxes. After typing in your Regex string, click the "Select Filtered" button to select the appropriate signals.
 
 ## Grafana Integration
 
