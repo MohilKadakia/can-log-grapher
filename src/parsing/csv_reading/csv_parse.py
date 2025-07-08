@@ -12,7 +12,7 @@ def parse_csv(filepath):
     df = pd.read_csv(filepath, names=["timestamp", "sender", "value"])
     
     # Vectorized conversion - much faster than apply()
-    df["timestamp_int"] = df["timestamp"].apply(lambda x: int(x, 16))
+    df["timestamp_int"] = df["timestamp"].astype(int)
     df["date_time"] = pd.to_datetime(BASE_TIME) + pd.to_timedelta(df["timestamp_int"], unit='ms')
 
     # Convert datetime to string immediately

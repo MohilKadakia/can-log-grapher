@@ -19,7 +19,9 @@ def process_message(message: str, fileName) -> tuple:
         return timestamp, id_int, data_hex
 
 def run_script(folder_path: Path, filepath: Path):
-    db = cantools.database.load_file('2024CAR.dbc')
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    dbc_path = os.path.join(script_dir, '2024CAR.dbc')
+    db = cantools.database.load_file(dbc_path)
     fileName = filepath.name
     print(f"Parsing file: {filepath}")
 
@@ -75,25 +77,72 @@ def run_script(folder_path: Path, filepath: Path):
     # Check if no lines were skipped and delete the skipped file if it's empty
     if not skipped_any:
         os.remove(skipped_file_path)
+    return parsed_file_path
+
+def parse_raw_folder(folder_path: str):
+    """
+    Parse all raw .TXT files in a folder and return paths to generated CSV files.
+    
+    Args:
+        folder_path: Path to folder containing raw files
+        
+    Returns:
+        List of paths to the generated CSV files
+    """
+    folder = Path(folder_path)
+    files = list(folder.rglob('*.TXT'))
+    output_paths = []
+    
+    print(f"Number of files: {len(files)}")
+    
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        futures = []
+        for file_path in files:
+            futures.append(executor.submit(run_script, folder, file_path))
+        
+        # Collect results
+        for future in concurrent.futures.as_completed(futures):
+            output_paths.append(future.result())
+    
+    return output_paths
+def parse_raw_file(file_path: str):
+    """
+    Parse a single raw .TXT file and return the path to the generated CSV file.
+    
+    Args:
+        file_path: Path to the raw file
+        
+    Returns:
+        Path to the generated CSV file
+    """
+    file_path = Path(file_path)
+    folder_path = file_path.parent
+    
+    # Use the existing run_script function to process the file
+    result_path = run_script(folder_path, file_path)
+    
+    return result_path
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2 and len(sys.argv) != 3:
-        print('Usage: python3 parse_tcu_data.py <path_to_file>')
-        sys.exit()
-    if len(sys.argv) == 3:
-        if sys.argv[2] == "-All":
-            # example: python3 parse_tcu_data.py <pathToFolder> -All
-            folder_path = Path(sys.argv[1])
-            files = list(folder_path.rglob('*.TXT'))
-
-            # exit()
-            # Get the number of files
-            print(f"Number of files: {len(files)}")
-            # for file_path in files:
-            #     print(f"Processing file: {file_path}")
-            #     run_script(folder_path, file_path)
-            with concurrent.futures.ProcessPoolExecutor() as executor:
-                for file_path in files:
-                    executor.submit(run_script, folder_path, file_path)
+    # This code runs when the script is executed directly (not imported)
+    if len(sys.argv) > 1:
+        # Command-line usage still works
+        if len(sys.argv) == 3 and sys.argv[2] == "-All":
+            # Process entire folder
+            folder_path = sys.argv[1]
+            result_paths = parse_raw_folder(folder_path)
+            print(f"Generated {len(result_paths)} CSV files")
+        else:
+            # Process single file
+            folder_path = Path(os.path.dirname(sys.argv[1]))
+            file_path = Path(sys.argv[1])
+            result_path = run_script(folder_path, file_path)
+            print(f"Generated CSV file: {result_path}")
     else:
-        run_script(sys.argv[1])
+        # No arguments provided
+        print("Usage:")
+        print("  python parse_tcu_data.py <path_to_file>")
+        print("  python parse_tcu_data.py <path_to_folder> -All")
+        print("\nThis script can also be imported and used programmatically:")
+        print("  from parsing.raw_parsing.parse_tcu_data import parse_raw_folder")
+        print("  result_paths = parse_raw_folder(folder_path)")

@@ -3,6 +3,28 @@ from PyQt5.QtCore import QThread, pyqtSignal
 
 from app.threading_scripts.shared_data import shared_data_manager
 from parsing.csv_reading.csv_parse import parse_csv, rows_to_csv_bytes
+from parsing.raw_parsing.parse_tcu_data import parse_raw_folder, parse_raw_file
+
+class CSVConversionThread(QThread):
+    """Thread for turning raw hexadecimal data into structured data for parsing."""
+    progress_update = pyqtSignal(str)  # Signal to update progress text
+    conversion_complete = pyqtSignal(str)  # Signal with data_id instead of data
+    
+    def __init__(self, path):
+        super().__init__()
+        self.path = path
+        
+    def run(self):
+        """Convert raw hexadecimal data into structured data for parsing."""
+        print(f"Processing folder {self.path}")
+        if os.path.isfile(self.path):
+            file_path = parse_raw_file(self.path)
+            file_paths = [file_path]
+            self.conversion_complete.emit(','.join(str(path) for path in file_paths))
+        else:
+            self.progress_update.emit(f"Processing folder {self.path}")
+            file_paths = parse_raw_folder(self.path)
+            self.conversion_complete.emit(','.join(str(path) for path in file_paths))    
 
 class CSVParsingThread(QThread):
     """Thread for parsing CSV files in the background."""

@@ -9,7 +9,7 @@ import threading
 import re
 
 from app.server import run_server, update_data
-from app.threading_scripts.processing_threads import CSVParsingThread, CSVProcessingThread
+from app.threading_scripts.processing_threads import CSVParsingThread, CSVProcessingThread, CSVConversionThread
 from app.threading_scripts.shared_data import shared_data_manager
 
 class CANLogUploader(QWidget):
@@ -49,13 +49,13 @@ class CANLogUploader(QWidget):
         button_layout = QHBoxLayout()
 
         # File selection button
-        self.file_btn = QPushButton("Select CSV File")
+        self.file_btn = QPushButton("Select TXT File")
         self.file_btn.clicked.connect(self.select_file)
         self.file_btn.setObjectName("file_btn")
         button_layout.addWidget(self.file_btn)
 
         # Folder selection button
-        self.folder_btn = QPushButton("Select Folder of CSVs")
+        self.folder_btn = QPushButton("Select Folder of TXTs")
         self.folder_btn.clicked.connect(self.select_folder)
         self.folder_btn.setObjectName("file_btn")
         button_layout.addWidget(self.folder_btn)
@@ -177,8 +177,8 @@ class CANLogUploader(QWidget):
         self.loading_frame.show()
         self.sender_frame.hide()
         self.update_btn.hide()
-        self.file_btn.setEnabled(False)
         self.folder_btn.setEnabled(False)
+        self.file_btn.setEnabled(False)
         self.loading_label.setText(message)
         self.progress_text.setText("")
         
@@ -195,7 +195,7 @@ class CANLogUploader(QWidget):
         self.loading_frame.hide()
         self.file_btn.setEnabled(True)
         self.folder_btn.setEnabled(True)
-        
+        self.file_btn.setEnabled(True)
         if enable_sender_controls:
             self.update_btn.setEnabled(True)
             self.select_all_btn.setEnabled(True)
@@ -203,6 +203,27 @@ class CANLogUploader(QWidget):
             self.select_regex_btn.setEnabled(True)
             self.regex_input.setEnabled(True)
             self.regex_clear_btn.setEnabled(True)
+
+    def process_raw_path(self, path):
+        """Process a raw path."""
+        self.show_loading_screen("Processing raw path...")
+        self.conversion_thread = CSVConversionThread(path)
+        self.conversion_thread.progress_update.connect(self.on_conversion_progress)
+        self.conversion_thread.conversion_complete.connect(self.on_conversion_complete)
+        self.conversion_thread.start()
+
+    def on_conversion_progress(self, message):
+        """Update progress text during conversion."""
+        self.progress_text.setText(message)
+
+    def on_conversion_complete(self, file_paths):
+        """Handle completion of CSV conversion."""
+        file_paths = file_paths.split(',')
+        self.show_loading_screen("Processing...")
+        self.parsing_thread = CSVParsingThread(file_paths)
+        self.parsing_thread.progress_update.connect(self.on_parsing_progress)
+        self.parsing_thread.parsing_complete.connect(self.on_parsing_complete)
+        self.parsing_thread.start()
 
     def on_parsing_progress(self, message):
         """Update progress text during parsing."""
@@ -291,7 +312,7 @@ class CANLogUploader(QWidget):
         # Create checkboxes for each sender
         for i, sender in enumerate(self.sender_order):
             checkbox = QCheckBox(f"{sender}")
-            checkbox.setChecked(True)  # Default to checked
+            checkbox.setChecked(False)  # Default to checked
             checkbox.setObjectName("sender_checkbox")
             
             # Connect to custom click handler that preserves normal behavior
@@ -350,23 +371,18 @@ class CANLogUploader(QWidget):
             self.last_clicked_index = index
 
     def select_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Open CSV File", "", "CSV Files (*.csv)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open TXT File", "", "TXT Files (*.txt)")
         if file_path:
             self.current_source = f"File: {file_path}"
             self.source_label.setText(self.current_source)
-            self.process_files([file_path])
-
+            self.process_raw_path(file_path)    
     def select_folder(self):
         folder_path = QFileDialog.getExistingDirectory(self, "Select Folder")
         if folder_path:
-            csv_files = [
-                os.path.join(folder_path, f)
-                for f in os.listdir(folder_path)
-                if f.lower().endswith('.csv')
-            ]
-            self.current_source = f"Folder: {folder_path} ({len(csv_files)} CSV files)"
+            txt_files = [f for f in os.listdir(folder_path) if f.lower().endswith('.txt')]
+            self.current_source = f"Folder: {folder_path} ({len(txt_files)} TXT files)"
             self.source_label.setText(self.current_source)
-            self.process_files(csv_files)
+            self.process_raw_path(folder_path)
 
     def process_files(self, file_list):
         """Start CSV parsing in a separate thread."""
