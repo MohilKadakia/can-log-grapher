@@ -11,8 +11,13 @@ def parse_csv(filepath):
     # Read entire file at once if memory allows, or use larger chunks
     df = pd.read_csv(filepath, names=["timestamp", "sender", "value"])
     
-    # Vectorized conversion - much faster than apply()
-    df["timestamp_int"] = df["timestamp"].apply(lambda x: int(x, 16))
+    if '.' in str(df["timestamp"].iloc[0]):
+        # If timestamp contains a decimal point, treat as float
+        df["timestamp_int"] = df["timestamp"].astype(int)
+    else:
+        # Otherwise, assume it's in hex format (like "000000BB")
+        df["timestamp_int"] = df["timestamp"].apply(lambda x: int(x, 16))
+
     df["date_time"] = pd.to_datetime(BASE_TIME) + pd.to_timedelta(df["timestamp_int"], unit='ms')
 
     # Convert datetime to string immediately
