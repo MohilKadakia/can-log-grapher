@@ -46,21 +46,37 @@ class CANLogUploader(QWidget):
         layout.addWidget(title)
 
         # Create horizontal layout for buttons
-        button_layout = QHBoxLayout()
+        button_layout_CSV = QHBoxLayout()
 
         # File selection button
-        self.file_btn = QPushButton("Select TXT File")
-        self.file_btn.clicked.connect(self.select_file)
-        self.file_btn.setObjectName("file_btn")
-        button_layout.addWidget(self.file_btn)
+        self.CSV_file_btn = QPushButton("Select CSV File")
+        self.CSV_file_btn.clicked.connect(self.select_CSV_file)
+        self.CSV_file_btn.setObjectName("csv_btn")
+        button_layout_CSV.addWidget(self.CSV_file_btn)
 
         # Folder selection button
-        self.folder_btn = QPushButton("Select Folder of TXTs")
-        self.folder_btn.clicked.connect(self.select_folder)
-        self.folder_btn.setObjectName("file_btn")
-        button_layout.addWidget(self.folder_btn)
+        self.CSV_folder_btn = QPushButton("Select Folder of CSVs")
+        self.CSV_folder_btn.clicked.connect(self.select_CSV_folder)
+        self.CSV_folder_btn.setObjectName("csv_btn")
+        button_layout_CSV.addWidget(self.CSV_folder_btn)
 
-        layout.addLayout(button_layout)
+        # Create horizontal layout for buttons
+        button_layout_TXT = QHBoxLayout()
+
+        # File selection button
+        self.TXT_file_btn = QPushButton("Select TXT File")
+        self.TXT_file_btn.clicked.connect(self.select_TXT_file)
+        self.TXT_file_btn.setObjectName("file_btn")
+        button_layout_TXT.addWidget(self.TXT_file_btn)
+
+        # Folder selection button
+        self.TXT_folder_btn = QPushButton("Select Folder of TXTs")
+        self.TXT_folder_btn.clicked.connect(self.select_TXT_folder)
+        self.TXT_folder_btn.setObjectName("file_btn")
+        button_layout_TXT.addWidget(self.TXT_folder_btn)
+
+        layout.addLayout(button_layout_CSV)
+        layout.addLayout(button_layout_TXT)
 
         # Current source display
         self.source_label = QLabel("No file or folder selected")
@@ -177,8 +193,10 @@ class CANLogUploader(QWidget):
         self.loading_frame.show()
         self.sender_frame.hide()
         self.update_btn.hide()
-        self.folder_btn.setEnabled(False)
-        self.file_btn.setEnabled(False)
+        self.TXT_folder_btn.setEnabled(False)
+        self.TXT_file_btn.setEnabled(False)
+        self.CSV_folder_btn.setEnabled(False)
+        self.CSV_file_btn.setEnabled(False)
         self.loading_label.setText(message)
         self.progress_text.setText("")
         
@@ -193,9 +211,10 @@ class CANLogUploader(QWidget):
     def hide_loading_screen(self, enable_sender_controls=True):
         """Hide the loading screen and re-enable buttons."""
         self.loading_frame.hide()
-        self.file_btn.setEnabled(True)
-        self.folder_btn.setEnabled(True)
-        self.file_btn.setEnabled(True)
+        self.TXT_file_btn.setEnabled(True)
+        self.TXT_folder_btn.setEnabled(True)
+        self.CSV_file_btn.setEnabled(True)
+        self.CSV_folder_btn.setEnabled(True)
         if enable_sender_controls:
             self.update_btn.setEnabled(True)
             self.select_all_btn.setEnabled(True)
@@ -370,19 +389,38 @@ class CANLogUploader(QWidget):
             # Update last clicked index after the normal click is processed
             self.last_clicked_index = index
 
-    def select_file(self):
+    def select_TXT_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open TXT File", "", "TXT Files (*.txt)")
         if file_path:
             self.current_source = f"File: {file_path}"
             self.source_label.setText(self.current_source)
             self.process_raw_path(file_path)    
-    def select_folder(self):
+    def select_TXT_folder(self):
         folder_path = QFileDialog.getExistingDirectory(self, "Select Folder")
         if folder_path:
             txt_files = [f for f in os.listdir(folder_path) if f.lower().endswith('.txt')]
             self.current_source = f"Folder: {folder_path} ({len(txt_files)} TXT files)"
             self.source_label.setText(self.current_source)
             self.process_raw_path(folder_path)
+    
+    def select_CSV_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open CSV File", "", "CSV Files (*.csv)")
+        if file_path:
+            self.current_source = f"File: {file_path}"
+            self.source_label.setText(self.current_source)
+            self.process_files([file_path])
+
+    def select_CSV_folder(self):
+        folder_path = QFileDialog.getExistingDirectory(self, "Select Folder")
+        if folder_path:
+            csv_files = [
+                os.path.join(folder_path, f)
+                for f in os.listdir(folder_path)
+                if f.lower().endswith('.csv')
+            ]
+            self.current_source = f"Folder: {folder_path} ({len(csv_files)} CSV files)"
+            self.source_label.setText(self.current_source)
+            self.process_files(csv_files)
 
     def process_files(self, file_list):
         """Start CSV parsing in a separate thread."""

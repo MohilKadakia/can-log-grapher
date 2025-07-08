@@ -34,6 +34,24 @@ QWidget {
     background: #182748;
 }
 
+#csv_btn {
+    background: rgb(29, 70, 32);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 18px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+#csv_btn:hover {
+    background: rgb(32, 62, 34);
+}
+
+#csv_btn:pressed {
+    background: rgb(20, 49, 22);
+}
+
 /* Update button */
 #update_btn {
     background: #8b3411;
