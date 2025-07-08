@@ -250,6 +250,7 @@ class CANLogUploader(QWidget):
 
     def on_parsing_complete(self, data_id: str):
         """Handle completion of CSV parsing."""
+        self.delete_old_data()
         self.csv_data_id = data_id
         self.hide_loading_screen()
         
@@ -395,6 +396,7 @@ class CANLogUploader(QWidget):
             self.current_source = f"File: {file_path}"
             self.source_label.setText(self.current_source)
             self.process_raw_path(file_path)    
+
     def select_TXT_folder(self):
         folder_path = QFileDialog.getExistingDirectory(self, "Select Folder")
         if folder_path:
@@ -429,6 +431,7 @@ class CANLogUploader(QWidget):
             
         # Show loading screen
         self.show_loading_screen("Processing...")
+        self.delete_old_data()
         
         # Create and start parsing thread
         self.parsing_thread = CSVParsingThread(file_list)
@@ -563,6 +566,12 @@ class CANLogUploader(QWidget):
         
         # Move window to center
         self.move(x, y)
+    
+    def delete_old_data(self):
+        """Delete old data from shared manager."""
+        if self.csv_data_id:
+            shared_data_manager.remove_data(self.csv_data_id)
+            self.csv_data_id = None
 
     def closeEvent(self, event):
         """Clean up resources when window closes."""
