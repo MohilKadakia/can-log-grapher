@@ -100,6 +100,20 @@
           "hideZeros": false,
           "mode": "single",
           "sort": "none"
+        },
+        "xAxis": {
+          "autoRangeMode": "auto",
+          "show": true,
+          "scale": "time",
+          "mode": "time",
+          "timeShift": null,
+          "min": null,
+          "max": null
+        },
+        "yAxis": {
+          "autoRangeMode": "within-stdev",
+          "show": true,
+          "scale": "linear"
         }
       },
       "pluginVersion": "12.0.2",
@@ -157,6 +171,7 @@
           }
         }
       ],
+      
       "type": "timeseries"
     }
   ],
@@ -167,19 +182,32 @@
     "list": []
   },
   "time": {
-    "from": "2025-01-01T05:00:00.000Z",
-    "to": "2025-01-01T05:01:00.000Z"
+    "from": "now-1m",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
       "1s",
-      "5s",
+      "5s", 
       "15s",
       "1m"
-    ]
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
+    "nowDelay": "0s"
   },
-  "timezone": "browser",
-  "title": "UWFE - General Dashboard",
-  "uid": "1167b0cf-c0ac-4799-ada0-984d8ffcbac4",
-  "version": 6
-}
+  "refresh": "0s",
+    "timezone": "browser",
+    "title": "UWFE - General Dashboard",
+    "uid": "1167b0cf-c0ac-4799-ada0-984d8ffcbac4",
+    "version": 6
+  }
