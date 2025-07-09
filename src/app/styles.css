@@ -163,8 +163,7 @@ QWidget {
 #sender_checkbox_highlighted {
     font-size: 16px; 
     padding: 8px 12px; 
-    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
-                              stop: 0 #2563eb, stop: 1 #1d4ed8);
+    background: linear-gradient(to right, #2563eb, #1d4ed8);
     color: white;
     border-radius: 6px;
     font-weight: 600;
@@ -173,8 +172,8 @@ QWidget {
 }
 
 #sender_checkbox_highlighted:hover {
-    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
-                              stop: 0 #1d4ed8, stop: 1 #1e40af);
+    background: linear-gradient(to right, #1d4ed8, #1e40af);
+    color: white;
 }
 
 #sender_checkbox_highlighted::indicator {
@@ -188,6 +187,10 @@ QWidget {
 #sender_checkbox_highlighted::indicator:checked {
     background-color: #1d4ed8;
     border: 2px solid white;
+}
+
+#sender_checkbox_regex_match::indicator:hover {
+    border: 2px solid #d97706;
 }
 
 #select_all_btn {
