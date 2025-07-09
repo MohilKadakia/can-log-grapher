@@ -415,11 +415,13 @@ class CANLogUploader(QWidget):
     def select_CSV_folder(self):
         folder_path = QFileDialog.getExistingDirectory(self, "Select Folder")
         if folder_path:
-            csv_files = [
-                os.path.join(folder_path, f)
-                for f in os.listdir(folder_path)
-                if f.lower().endswith('.csv')
-            ]
+            csv_files = []
+            # Recursively walk through directory and subdirectories
+            for root, dirs, files in os.walk(folder_path):
+                for file in files:
+                    if file.lower().endswith('.csv'):
+                        csv_files.append(os.path.join(root, file))
+            
             self.current_source = f"Folder: {folder_path} ({len(csv_files)} CSV files)"
             self.source_label.setText(self.current_source)
             self.process_files(csv_files)
