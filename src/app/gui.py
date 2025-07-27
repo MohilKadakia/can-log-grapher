@@ -1,7 +1,8 @@
 import os
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QPushButton, QFileDialog, QMessageBox, QLabel, 
-    QCheckBox, QScrollArea, QFrame, QProgressBar, QHBoxLayout, QLineEdit, QDesktopWidget
+    QCheckBox, QScrollArea, QFrame, QProgressBar, QHBoxLayout, QLineEdit, QDesktopWidget,
+    QDialog, QApplication
 )
 from io import StringIO
 from PyQt5.QtCore import Qt
@@ -14,6 +15,9 @@ from app.apptransitions import UITransitionManager
 from app.uploadselection import UploadSelection
 from app.checkboxmanagement import CheckboxManager
 from app.threading_scripts.shared_data import shared_data_manager
+from app.cloudupload import CloudUploadPanel
+from api.login import LoginDialog
+
 
 class CANLogUploader(QWidget):
     def __init__(self):
@@ -95,6 +99,12 @@ class CANLogUploader(QWidget):
 
         layout.addLayout(button_layout_CSV)
         layout.addLayout(button_layout_TXT)
+
+        # Add Cloud Upload button
+        self.cloud_upload_btn = QPushButton("Upload to Cloud")
+        self.cloud_upload_btn.clicked.connect(self.open_cloud_upload_panel)
+        self.cloud_upload_btn.setObjectName("update_btn")
+        layout.addWidget(self.cloud_upload_btn)
 
         # Current source display
         self.source_label = QLabel(self.current_source)
@@ -205,6 +215,15 @@ class CANLogUploader(QWidget):
         layout.addStretch()
 
         self.setLayout(layout)
+    
+    def open_cloud_upload_panel(self):
+        """Open the cloud upload panel."""
+        login_dialog = LoginDialog(self)
+        result = login_dialog.exec_()
+            
+        if result == QDialog.Accepted:
+            cloud_panel = CloudUploadPanel(self)
+            cloud_panel.exec_()
     
     def on_parsing_completed(self, data_id):
         """Handle completion of CSV parsing."""

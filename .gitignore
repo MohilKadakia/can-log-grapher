@@ -2,6 +2,11 @@ ignore/
 logs/
 parsed_files/
 
+# Firebase
+firebase_service_account.json
+.env
+uwfe-firebase-key.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
