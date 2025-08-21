@@ -1,380 +1,490 @@
-/* Main widget styling */
+/* Main widget styling - Black background base */
 QWidget {
-    background-color: #191919;
-    color: #e1e1e1;
+    background-color: #1a1a1a;
+    color: #ffffff;
     font-family: 'Segoe UI', 'Arial', sans-serif;
 }
 
-/* Title styling */
+/* Title styling - Gold accent on black */
 #title {
     font-size: 36px; 
     font-weight: 700;
     color: #ffffff;
-    border: 2px solid #374151;
+    border: 3px solid #d4af37;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 12px;
+    background-color: #000000;
 }
 
-/* File selection button */
+/* Primary buttons - Gold theme */
 #file_btn {
-    background: #2c3e69;
-    color: white;
-    border: none;
-    border-radius: 8px;
+    background: #d4af37;
+    color: #000000;
+    border: 2px solid #c8a030;
+    border-radius: 10px;
     padding: 18px;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 #file_btn:hover {
-    background: #202f50;
+    background: #e0bb4f;
+    color: #000000;
+    border: 2px solid #d4af37;
 }
 
 #file_btn:pressed {
-    background: #182748;
+    background: #b89b30;
+    color: #000000;
 }
 
+/* Secondary buttons - White theme */
 #csv_btn {
-    background: rgb(29, 70, 32);
-    color: white;
-    border: none;
-    border-radius: 8px;
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #e5e5e5;
+    border-radius: 10px;
     padding: 18px;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 #csv_btn:hover {
-    background: rgb(32, 62, 34);
+    background: #f5f5f5;
+    color: #000000;
+    border: 2px solid #d4af37;
 }
 
 #csv_btn:pressed {
-    background: rgb(20, 49, 22);
+    background: #e0e0e0;
+    color: #000000;
 }
 
-/* Update button */
+/* Action button - Gold accent */
 #update_btn {
-    background: #8b3411;
-    color: white;
-    border: none;
+    background: #d4af37;
+    color: #000000;
+    border: 2px solid #000000;
     border-radius: 12px;
     padding: 16px 24px;
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 #update_btn:hover {
-    background: #742b0e;
+    background: #000000;
+    color: #d4af37;
+    border: 2px solid #d4af37;
 }
 
 #update_btn:pressed {
-    background: #5a220c;
+    background: #333333;
+    color: #d4af37;
 }
 
-/* Sender frame */
+/* Folder button styling */
+#folder_btn {
+    background: #d4af37;
+    color: #000000;
+    border: 2px solid #c8a030;
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+#folder_btn:hover {
+    background: #e0bb4f;
+    color: #000000;
+    border: 2px solid #d4af37;
+}
+
+#folder_btn:pressed {
+    background: #b89b30;
+    color: #000000;
+}
+
+/* Frame styling - Black with gold borders */
 #sender_frame {
-    border: 2px solid #374151; 
+    border: 3px solid #d4af37; 
     border-radius: 15px; 
     padding: 20px;
-    background-color: #2d2d2d;
+    background-color: #000000;
     margin: 10px 0px;
 }
 
-/* Sender title */
+/* Frame titles - Gold on black */
 #sender_title {
     font-size: 22px; 
     font-weight: 700; 
     margin-bottom: 15px; 
-    color: #e1e1e1;
-    padding: 10px;
-    background-color: #374151;
+    color: #d4af37;
+    padding: 12px;
+    background-color: #000000;
+    border: 2px solid #d4af37;
     border-radius: 8px;
     font-family: 'Segoe UI', 'Arial', sans-serif;
 }
 
-/* Scroll area */
+/* Scroll areas - Black with gold accents */
 #scroll_area {
-    border: 1px solid #374151;
-    border-radius: 8px;
-    background-color: #2d2d2d;
+    border: 2px solid #d4af37;
+    border-radius: 10px;
+    background-color: #000000;
+    color: #ffffff;
 }
 
 #scroll_area QScrollBar:vertical {
-    background-color: #374151;
-    width: 12px;
-    border-radius: 6px;
+    background-color: #333333;
+    width: 14px;
+    border-radius: 7px;
+    border: 1px solid #d4af37;
 }
 
 #scroll_area QScrollBar::handle:vertical {
-    background-color: #6b7280;
+    background-color: #d4af37;
     border-radius: 6px;
     min-height: 80px;
+    border: 1px solid #000000;
 }
 
 #scroll_area QScrollBar::handle:vertical:hover {
-    background-color: #9ca3af;
+    background-color: #e0bb4f;
 }
 
-/* Default checkbox styling */
+/* Tree view and list styling */
+QTreeView, QListWidget {
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    selection-background-color: #d4af37;
+    selection-color: #000000;
+}
+
+QTreeView::item:hover, QListWidget::item:hover {
+    background-color: #333333;
+    color: #d4af37;
+}
+
+QTreeView::item:selected, QListWidget::item:selected {
+    background-color: #d4af37;
+    color: #000000;
+}
+
+/* Default checkbox styling - White theme */
 #sender_checkbox {
     font-size: 16px; 
-    padding: 8px 12px; 
-    background-color: transparent;
-    color: #e1e1e1;
-    font-weight: 500;
+    padding: 10px 15px; 
+    background-color: #000000;
+    color: #ffffff;
+    font-weight: 600;
     font-family: 'Segoe UI', 'Arial', sans-serif;
-    border-radius: 6px;
-    margin: 2px;
+    border: 2px solid #333333;
+    border-radius: 8px;
+    margin: 3px;
 }
 
 #sender_checkbox:hover {
-    background-color: #374151;
-    color: #60a5fa;
+    background-color: #333333;
+    color: #d4af37;
+    border: 2px solid #d4af37;
 }
 
 #sender_checkbox::indicator {
-    width: 18px;
-    height: 18px;
-    border-radius: 3px;
-    border: 2px solid #6b7280;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid #ffffff;
+    background-color: #000000;
 }
 
 #sender_checkbox::indicator:checked {
-    background-color: #2563eb;
-    border: 2px solid #1d4ed8;
+    background-color: #d4af37;
+    border: 2px solid #000000;
 }
 
 #sender_checkbox::indicator:hover {
-    border: 2px solid #2563eb;
+    border: 2px solid #d4af37;
 }
 
-#sender_checkbox_highlight {
-    font-size: 16px; 
-    padding: 8px 12px; 
-    background-color: #0d4743;
-    color: #e1e1e1;
-    font-weight: 500;
-    font-family: 'Segoe UI', 'Arial', sans-serif;
-    border-radius: 6px;
-    margin: 2px;
-}
-
-/* Highlighted checkbox styling */
+/* Highlighted checkbox styling - Gold theme */
 #sender_checkbox_highlighted {
     font-size: 16px; 
-    padding: 8px 12px; 
-    background: linear-gradient(to right, #2563eb, #1d4ed8);
-    color: white;
-    border-radius: 6px;
-    font-weight: 600;
+    padding: 10px 15px; 
+    background-color: #d4af37;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    font-weight: 700;
     font-family: 'Segoe UI', 'Arial', sans-serif;
-    margin: 2px;
+    margin: 3px;
 }
 
 #sender_checkbox_highlighted:hover {
-    background: linear-gradient(to right, #1d4ed8, #1e40af);
-    color: white;
+    background-color: #e0bb4f;
+    color: #000000;
 }
 
 #sender_checkbox_highlighted::indicator {
-    width: 18px;
-    height: 18px;
-    border-radius: 3px;
-    background-color: black;
-    border: 2px solid white;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background-color: #000000;
+    border: 2px solid #000000;
 }
 
 #sender_checkbox_highlighted::indicator:checked {
-    background-color: #1d4ed8;
-    border: 2px solid white;
+    background-color: #000000;
+    border: 2px solid #ffffff;
 }
 
-#sender_checkbox_regex_match::indicator:hover {
-    border: 2px solid #d97706;
-}
-
+/* Select all button - Gold theme */
 #select_all_btn {
-    background: #1e40af;
-    color: white;
-    border: none;
+    background: #d4af37;
+    color: #000000;
+    border: 2px solid #000000;
     border-radius: 12px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 #select_all_btn:hover {
-    background: #1d4ed8;
+    background: #000000;
+    color: #d4af37;
+    border: 2px solid #d4af37;
 }
 
-#deselect_all_btn {
-    background: #4b5563;
-    color: #e1e1e1;
-    border: none;
+/* Close/Back buttons - White theme */
+#deselect_all_btn, #close_btn {
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #333333;
     border-radius: 12px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
-#deselect_all_btn:hover {
-    background: #6b7280;
+#deselect_all_btn:hover, #close_btn:hover {
+    background: #f5f5f5;
+    color: #000000;
+    border: 2px solid #d4af37;
 }
 
-/* Loading screen styling */
+/* Loading screen styling - Black with gold accents */
 #loading_frame {
-    border: 2px solid #374151;
+    border: 3px solid #d4af37;
     border-radius: 15px;
     padding: 30px;
-    background-color: #2d2d2d;
+    background-color: #000000;
     margin: 20px 0px;
 }
 
 #loading_label {
     font-size: 24px;
     font-weight: 700;
-    color: #e1e1e1;
+    color: #d4af37;
     margin-bottom: 20px;
     padding: 15px;
-    background-color: #374151;
-    border-radius: 8px;
+    background-color: #000000;
+    border: 2px solid #d4af37;
+    border-radius: 10px;
     font-family: 'Segoe UI', 'Arial', sans-serif;
 }
 
 #progress_bar {
-    background-color: #374151;
-    border: 2px solid #4b5563;
-    border-radius: 8px;
-    height: 25px;
+    background-color: #000000;
+    border: 2px solid #d4af37;
+    border-radius: 10px;
+    height: 28px;
     margin: 15px 0px;
 }
 
 #progress_bar::chunk {
-    background: #127432;
-    border-radius: 6px;
+    background: #d4af37;
+    border-radius: 8px;
     margin: 2px;
 }
 
 #progress_text {
     font-size: 16px;
-    font-weight: 500;
-    color: #9ca3af;
+    font-weight: 600;
+    color: #ffffff;
     margin-top: 10px;
-    padding: 8px;
+    padding: 10px;
     font-family: 'Segoe UI', 'Arial', sans-serif;
-    background-color: transparent;
+    background-color: #333333;
+    border: 1px solid #d4af37;
+    border-radius: 6px;
 }
 
-/* Source label styling */
+/* Source label styling - Black with gold border */
 #source_label {
     font-size: 14px;
-    font-weight: 500;
-    color: #9ca3af;
+    font-weight: 600;
+    color: #ffffff;
     margin: 10px 0px;
-    padding: 12px;
-    background-color: #374151;
-    border-radius: 8px;
+    padding: 15px;
+    background-color: #000000;
+    border: 2px solid #d4af37;
+    border-radius: 10px;
     font-family: 'Segoe UI', 'Arial', sans-serif;
 }
 
-/* Regex filter styling */
+/* Input field styling - Black with gold accents */
 #regex_label {
     font-size: 24px;
-    font-weight: 600;
-    color: #e1e1e1;
+    font-weight: 700;
+    color: #d4af37;
     background-color: transparent;
-    padding: 8px;
+    padding: 10px;
     font-family: 'Segoe UI', 'Arial', sans-serif;
 }
 
 #regex_input {
-    background-color: #374151;
-    color: #e1e1e1;
-    border: 2px solid #4b5563;
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 14px;
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #d4af37;
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 16px;
     font-family: 'Consolas', 'Courier New', monospace;
-    selection-background-color: #2563eb;
+    selection-background-color: #d4af37;
+    selection-color: #000000;
 }
 
 #regex_input:focus {
-    border: 2px solid #2563eb;
-    background-color: #2d2d2d;
+    border: 3px solid #e0bb4f;
+    background-color: #000000;
 }
 
 #regex_input:hover {
-    border: 2px solid #6b7280;
+    border: 2px solid #e0bb4f;
 }
 
+/* Clear button - White theme */
 #regex_clear_btn {
-    background: #6b7280;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 16px;
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #333333;
+    border-radius: 10px;
+    padding: 12px 20px;
     font-size: 14px;
-    font-weight: 600;
-    min-width: 70px;
+    font-weight: 700;
+    min-width: 80px;
 }
 
 #regex_clear_btn:hover {
-    background: #9ca3af;
+    background: #f5f5f5;
+    border: 2px solid #d4af37;
 }
 
 #regex_clear_btn:pressed {
-    background: #4b5563;
+    background: #e0e0e0;
 }
 
+/* Search button - Gold theme */
 #select_regex_btn {
-    background: #059669;
-    color: white;
-    border: none;
+    background: #d4af37;
+    color: #000000;
+    border: 2px solid #000000;
     border-radius: 12px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 #select_regex_btn:hover {
-    background: #047857;
+    background: #000000;
+    color: #d4af37;
+    border: 2px solid #d4af37;
 }
 
 #select_regex_btn:pressed {
-    background: #065f46;
+    background: #333333;
+    color: #d4af37;
 }
 
-/* Regex matched checkbox styling */
+/* Regex matched checkbox styling - Gold highlight */
 #sender_checkbox_regex_match {
     font-size: 16px; 
-    padding: 8px 12px; 
-    background-color: #fef3c7;
-    color: #92400e;
-    font-weight: 600;
+    padding: 10px 15px; 
+    background-color: #d4af37;
+    color: #000000;
+    font-weight: 700;
     font-family: 'Segoe UI', 'Arial', sans-serif;
-    border: 2px solid #f59e0b;
-    border-radius: 6px;
-    margin: 2px;
+    border: 3px solid #e0bb4f;
+    border-radius: 8px;
+    margin: 3px;
 }
 
 #sender_checkbox_regex_match:hover {
-    background-color: #fde68a;
-    color: #78350f;
+    background-color: #e0bb4f;
+    color: #000000;
+    border: 3px solid #d4af37;
 }
 
 #sender_checkbox_regex_match::indicator {
-    width: 18px;
-    height: 18px;
-    border-radius: 3px;
-    border: 2px solid #f59e0b;
-    background-color: #fef3c7;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid #000000;
+    background-color: #ffffff;
 }
 
 #sender_checkbox_regex_match::indicator:checked {
-    background-color: #f59e0b;
-    border: 2px solid #d97706;
+    background-color: #000000;
+    border: 2px solid #d4af37;
 }
 
 #sender_checkbox_regex_match::indicator:hover {
-    border: 2px solid #d97706;
+    border: 2px solid #d4af37;
+}
+
+/* Tab widget styling */
+QTabWidget::pane {
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    background-color: #000000;
+}
+
+QTabBar::tab {
+    background-color: #333333;
+    color: #ffffff;
+    border: 2px solid #d4af37;
+    padding: 10px 20px;
+    margin: 2px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+QTabBar::tab:selected {
+    background-color: #d4af37;
+    color: #000000;
+}
+
+QTabBar::tab:hover {
+    background-color: #555555;
+    color: #d4af37;
+}
+
+/* Splitter styling */
+QSplitter::handle {
+    background-color: #d4af37;
+    width: 3px;
+    height: 3px;
+}
+
+QSplitter::handle:hover {
+    background-color: #e0bb4f;
+}
+
+/* Logo styling */
+#logo_label {
+    background-color: transparent;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
 }

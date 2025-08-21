@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
 )
 from io import StringIO
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
 import threading
 import re
 
@@ -16,6 +17,7 @@ from app.uploadselection import UploadSelection
 from app.checkboxmanagement import CheckboxManager
 from app.threading_scripts.shared_data import shared_data_manager
 from app.cloudupload import CloudUploadPanel
+from app.cloudaccess import CloudAccessPanel
 from api.login import LoginDialog
 
 
@@ -51,7 +53,7 @@ class CANLogUploader(QWidget):
     def gui(self):
         """Initialize the CAN Log Uploader GUI."""
         self.setWindowTitle("CAN Log Uploader")
-        self.resize(800, 600)
+        self.resize(1000, 700)
         
         # Load external CSS file
         self.load_stylesheet('styles.css')
@@ -100,18 +102,29 @@ class CANLogUploader(QWidget):
         layout.addLayout(button_layout_CSV)
         layout.addLayout(button_layout_TXT)
 
+        # Cloud buttons layout
+        cloud_buttons_layout = QHBoxLayout()
+        
         # Add Cloud Upload button
         self.cloud_upload_btn = QPushButton("Upload to Cloud")
         self.cloud_upload_btn.clicked.connect(self.open_cloud_upload_panel)
         self.cloud_upload_btn.setObjectName("update_btn")
-        layout.addWidget(self.cloud_upload_btn)
+        cloud_buttons_layout.addWidget(self.cloud_upload_btn)
+        
+        # Add Cloud Access button
+        self.cloud_access_btn = QPushButton("Access Cloud Files")
+        self.cloud_access_btn.clicked.connect(self.open_cloud_access_panel)
+        self.cloud_access_btn.setObjectName("file_btn")
+        cloud_buttons_layout.addWidget(self.cloud_access_btn)
+        
+        layout.addLayout(cloud_buttons_layout)
 
-        # Current source display
+        # Source label to display the current file/folder being processed
         self.source_label = QLabel(self.current_source)
         self.source_label.setAlignment(Qt.AlignCenter)
         self.source_label.setObjectName("source_label")
-        self.source_label.setWordWrap(True)
         layout.addWidget(self.source_label)
+
 
         # Loading screen elements
         self.loading_frame = QFrame()
@@ -213,6 +226,23 @@ class CANLogUploader(QWidget):
 
         # Add stretch to push content to top
         layout.addStretch()
+        
+        # Add the UWFE logo at the bottom
+        logo_layout = QHBoxLayout()
+        logo_layout.setAlignment(Qt.AlignCenter)
+        
+        logo_label = QLabel()
+        logo_label.setObjectName("logo_label")
+        logo_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 
+                                "public", "UWFElogo.png")
+        logo_pixmap = QPixmap(logo_path)
+        # Scale the logo to an appropriate size (adjust width as needed)
+        logo_pixmap = logo_pixmap.scaledToWidth(400, Qt.SmoothTransformation)
+        logo_label.setPixmap(logo_pixmap)
+        logo_label.setAlignment(Qt.AlignCenter)
+        logo_layout.addWidget(logo_label)
+        
+        layout.addLayout(logo_layout)
 
         self.setLayout(layout)
     
@@ -225,6 +255,15 @@ class CANLogUploader(QWidget):
             cloud_panel = CloudUploadPanel(self)
             cloud_panel.exec_()
     
+    def open_cloud_access_panel(self):
+        """Open the cloud access panel."""
+        login_dialog = LoginDialog(self)
+        result = login_dialog.exec_()
+            
+        if result == QDialog.Accepted:
+            cloud_panel = CloudAccessPanel(self)
+            cloud_panel.exec_()
+
     def on_parsing_completed(self, data_id):
         """Handle completion of CSV parsing."""
         self.csv_data_id = data_id

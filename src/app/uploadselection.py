@@ -1,5 +1,7 @@
 import os
 from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtCore import Qt
+
 
 class UploadSelection:
     """Handles file and folder selection for the CAN Log Uploader."""
