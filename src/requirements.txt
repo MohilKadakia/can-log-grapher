@@ -1,3 +1,6 @@
 PyQt5>=5.15.11
 pandas>=2.2.3
 cantools
+firebase-admin>=6.2.0
+python-dotenv>=1.0.0
+pyrebase4>=4.7.1
