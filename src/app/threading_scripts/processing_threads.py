@@ -44,9 +44,22 @@ class CSVParsingThread(QThread):
             print(f"Processing {file}")
             self.progress_update.emit(f"Processing file {i+1} of {total_files}: {os.path.basename(file)}")
             file_data = parse_csv(file)
+            
+            # Skip files that couldn't be parsed
+            if file_data is None:
+                self.progress_update.emit(f"Skipping invalid file: {os.path.basename(file)}")
+                continue
+                
             csv_data.extend(file_data)
 
         print(f"Total rows loaded: {len(csv_data)}")
+        
+        # Check if we have any data after parsing
+        if not csv_data:
+            self.progress_update.emit("No valid data found in any of the files")
+            # Return empty data ID to signal no data
+            self.parsing_complete.emit("")
+            return
         
         # Store data in shared manager and emit the ID
         data_id = shared_data_manager.store_data(csv_data)

@@ -36,8 +36,8 @@ class CloudAccessGUI:
     def setup_ui(self):
         """Set up the cloud access panel UI."""
         layout = QVBoxLayout()
-        layout.setSpacing(25)
-        layout.setContentsMargins(30, 30, 30, 30)
+        layout.setSpacing(15)  # Reduced spacing to allow more content
+        layout.setContentsMargins(20, 20, 20, 20)  # Reduced margins to maximize space
         
         # Title
         title = QLabel("Cloud File Access")
@@ -76,6 +76,7 @@ class CloudAccessGUI:
         folder_frame = QFrame()
         folder_frame.setObjectName("sender_frame")
         folder_layout = QVBoxLayout(folder_frame)
+        folder_layout.setContentsMargins(5, 5, 5, 5)  # Reduced margins
         
         folder_title = QLabel("Folders")
         folder_title.setObjectName("sender_title")
@@ -86,6 +87,7 @@ class CloudAccessGUI:
         self.folder_tree.setHeaderHidden(True)
         self.folder_tree.setSelectionMode(QAbstractItemView.SingleSelection)
         self.folder_tree.clicked.connect(self.parent.on_folder_selected)
+        self.folder_tree.setMinimumWidth(250)  # Set minimum width
         
         # Create a model for the folder tree
         self.folder_model = QStandardItemModel()
@@ -107,17 +109,21 @@ class CloudAccessGUI:
         # Files tab
         files_widget = QWidget()
         files_layout = QVBoxLayout(files_widget)
+        files_layout.setContentsMargins(5, 5, 5, 5)  # Reduced margins
         
         self.files_list = QListWidget()
         self.files_list.setObjectName("scroll_area")
+        self.files_list.setMinimumHeight(400)  # Set minimum height
         files_layout.addWidget(self.files_list)
         
         # Recent tab
         recent_widget = QWidget()
         recent_layout = QVBoxLayout(recent_widget)
+        recent_layout.setContentsMargins(5, 5, 5, 5)  # Reduced margins
         
         self.recent_list = QListWidget()
         self.recent_list.setObjectName("scroll_area")
+        self.recent_list.setMinimumHeight(400)  # Set minimum height
         recent_layout.addWidget(self.recent_list)
         
         # Add tabs to tab widget
@@ -127,9 +133,9 @@ class CloudAccessGUI:
         # Add widgets to splitter
         splitter.addWidget(folder_frame)
         splitter.addWidget(tab_widget)
-        splitter.setSizes([300, 500])  # Set initial sizes
+        splitter.setSizes([350, 850])  # Set initial sizes to give more space to files
         
-        layout.addWidget(splitter)
+        layout.addWidget(splitter, 1)  # Give the splitter a stretch factor of 1
         
         # Action buttons
         button_layout = QHBoxLayout()
@@ -148,17 +154,17 @@ class CloudAccessGUI:
         
         layout.addLayout(button_layout)
         
-        # Refresh button
-        self.refresh_btn = QPushButton("Refresh")
-        self.refresh_btn.setObjectName("select_all_btn")
-        self.refresh_btn.clicked.connect(self.parent.load_cloud_data)
-        layout.addWidget(self.refresh_btn)
+        # Bottom buttons in horizontal layout to save vertical space
+        bottom_buttons = QHBoxLayout()
+        
         
         # Close button
         self.close_btn = QPushButton("Close")
         self.close_btn.clicked.connect(self.parent.close)
         self.close_btn.setObjectName("deselect_all_btn")
-        layout.addWidget(self.close_btn)
+        bottom_buttons.addWidget(self.close_btn)
+        
+        layout.addLayout(bottom_buttons)
         
         self.parent.setLayout(layout)
         
@@ -225,14 +231,10 @@ class CloudAccessGUI:
             # Check if this is a root folder (no parent_folder_id)
             if not folder.get("parent_folder_id"):
                 root_folders.append(folder_item)
-            
-        # Second pass: build the hierarchy
-        # We need to handle nested subfolders properly
         
-        # First, sort folders by path depth to ensure parents are processed before children
-        sorted_folders = sorted(folders, key=lambda f: len(f.get("path", "").split("/")))
-        
-        for folder in sorted_folders:
+        # Second pass: build the hierarchy by identifying parent-child relationships
+        # We need to handle nested subfolders by finding the correct parent for each folder
+        for folder in folders:
             parent_folder_id = folder.get("parent_folder_id")
             if parent_folder_id and parent_folder_id in folder_items_by_id:
                 # This is a subfolder, add it to its parent
@@ -241,43 +243,57 @@ class CloudAccessGUI:
                 parent_item.appendRow(current_item)
         
         # Add root folders to the tree
-        print(f"Adding {len(root_folders)} root folders to the tree")
         for folder_item in root_folders:
             self.root_item.appendRow(folder_item)
             
-        # Keep the old logic as fallback for folders that still use the old structure
+        # Third pass: process subfolders array for folders that use the old structure
         for folder in folders:
-            # Only process if not already added as a subfolder
-            if not folder.get("parent_folder_id"):
-                folder_item_id = None
-                # Find the corresponding item
-                for item_id, folder_data in folder_items.items():
-                    if folder_data.get("id") == folder.get("id"):
-                        folder_item = None
-                        # Find the item in our tracking dict
-                        for f_id, f_info in folder_items_by_id.items():
-                            if f_id == folder.get("id"):
-                                folder_item = f_info["item"]
+            if "subfolders" in folder and folder["subfolders"]:
+                # Find the corresponding item for this folder
+                folder_id = folder.get("id", "")
+                if folder_id in folder_items_by_id:
+                    folder_item = folder_items_by_id[folder_id]["item"]
+                    
+                    # Process each subfolder path
+                    for subfolder_path in folder["subfolders"]:
+                        # Check if this subfolder already exists as a separate folder document
+                        subfolder_exists = False
+                        for existing_folder in folders:
+                            if existing_folder.get("relative_path") == subfolder_path:
+                                subfolder_exists = True
                                 break
                         
-                        if folder_item and "subfolders" in folder and folder["subfolders"]:
-                            for subfolder_path in folder["subfolders"]:
-                                # Check if this subfolder already exists as a separate folder document
-                                subfolder_exists = False
-                                for existing_folder in folders:
-                                    if existing_folder.get("relative_path") == subfolder_path:
-                                        subfolder_exists = True
+                        # Only create subfolder item if it doesn't exist as separate document
+                        if not subfolder_exists:
+                            # Handle multi-level paths by creating each level as needed
+                            parts = subfolder_path.split(os.sep)
+                            current_item = folder_item
+                            current_path = ""
+                            
+                            for i, part in enumerate(parts):
+                                # Build the path incrementally
+                                if current_path:
+                                    current_path = os.path.join(current_path, part)
+                                else:
+                                    current_path = part
+                                
+                                # Check if this part already exists as a child
+                                child_exists = False
+                                for row in range(current_item.rowCount()):
+                                    if current_item.child(row).text() == part:
+                                        # This part exists, move to it and continue
+                                        current_item = current_item.child(row)
+                                        child_exists = True
                                         break
                                 
-                                # Only create subfolder item if it doesn't exist as separate document
-                                if not subfolder_exists:
-                                    subfolder_name = os.path.basename(subfolder_path)
-                                    subfolder_item = QStandardItem(subfolder_name)
-                                    subfolder_item.setIcon(QIcon.fromTheme("folder"))
-                                    folder_item.appendRow(subfolder_item)
+                                if not child_exists:
+                                    # Create a new item for this part
+                                    new_item = QStandardItem(part)
+                                    new_item.setIcon(QIcon.fromTheme("folder"))
+                                    current_item.appendRow(new_item)
+                                    current_item = new_item
         
         # Expand the folder tree to show the hierarchy
-        # Use expandAll() to show all levels of nested subfolders
         self.folder_tree.expandAll()
         
         # Ensure the root item is visible and selectable
@@ -321,6 +337,12 @@ class CloudAccessGUI:
             # Store file data in our dictionary
             item_id = id(file_item)
             file_items[item_id] = file
+            
+        # Add a note if we're showing a lot of files (might be hitting a limit)
+        if len(files) >= 500:
+            note_item = QListWidgetItem("Note: Only showing the first 500 files. There may be more files in this folder.")
+            note_item.setFlags(Qt.NoItemFlags)  # Make it non-selectable
+            self.files_list.addItem(note_item)
     
     def get_selected_file(self, file_items):
         """Get the selected file from either list.

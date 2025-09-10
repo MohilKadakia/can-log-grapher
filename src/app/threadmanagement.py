@@ -54,6 +54,15 @@ class ThreadManager(QObject):
     def on_parsing_complete(self, data_id: str):
         """Handle completion of CSV parsing."""
         self.delete_old_data()
+        
+        # Check if we have a valid data_id
+        if not data_id:
+            self.hide_loading.emit(True)
+            self.progress_update.emit("No valid data found in any of the files")
+            # Still emit the empty data_id to notify listeners
+            self.parsing_completed.emit("")
+            return
+            
         self.csv_data_id = data_id
         self.hide_loading.emit(True)
         self.parsing_completed.emit(data_id)
@@ -69,6 +78,11 @@ class ThreadManager(QObject):
         if not selected_senders:
             return False
         
+        # Check if we have valid data
+        if not self.csv_data_id:
+            self.progress_update.emit("No valid data available to process")
+            return False
+            
         # Show processing screen
         self.show_loading.emit("Processing data for server...", True)
         

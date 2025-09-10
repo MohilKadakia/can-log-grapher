@@ -195,7 +195,9 @@ class FirebaseClient:
         created_subfolders = set()  # Track which subfolders we've already created
         subfolder_id_map = {}  # Map subfolder relative paths to their IDs
         subfolder_files = {}  # Track files for each subfolder
+        parent_map = {}  # Track parent-child relationships between subfolders
         
+        # First pass: identify all subfolders and create their documents
         for root, dirs, files in os.walk(folder_path):
             # Check for cancellation if function provided
             if check_cancel_func and check_cancel_func():
@@ -215,26 +217,36 @@ class FirebaseClient:
                 if rel_path not in created_subfolders:
                     subfolder_id = f"{folder_id}_{rel_path.replace(os.sep, '_')}"
                     
-                    # Determine the correct parent folder ID for nested subfolders
-                    parent_folder_id = folder_id  # Default to the main folder
+                    # Determine the parent folder of this subfolder
+                    parent_rel_path = os.path.dirname(rel_path)
+                    parent_folder_id = None
                     
-                    # For nested subfolders (more than one level deep), find the parent subfolder
-                    if os.sep in rel_path:
-                        parent_rel_path = os.path.dirname(rel_path)
-                        if parent_rel_path in subfolder_id_map:
-                            # This is a nested subfolder, set its parent to the parent subfolder
-                            parent_folder_id = subfolder_id_map[parent_rel_path]
+                    if parent_rel_path and parent_rel_path != '.':
+                        # This is a nested subfolder, set its parent to be the parent subfolder
+                        parent_folder_id = f"{folder_id}_{parent_rel_path.replace(os.sep, '_')}"
+                        # Track this parent-child relationship
+                        if parent_folder_id not in parent_map:
+                            parent_map[parent_folder_id] = []
+                        parent_map[parent_folder_id].append(subfolder_id)
+                    else:
+                        # This is a top-level subfolder, set its parent to be the main folder
+                        parent_folder_id = folder_id
+                        # Track this parent-child relationship
+                        if folder_id not in parent_map:
+                            parent_map[folder_id] = []
+                        parent_map[folder_id].append(subfolder_id)
                     
                     subfolder_metadata = {
                         "name": os.path.basename(rel_path),
                         "path": os.path.join(cloud_base_path, rel_path).replace(os.sep, '/'),
                         "type": "folder",
                         "created_at": datetime.datetime.now().isoformat(),
-                        "parent_dir": os.path.basename(os.path.dirname(subfolder_path)),
-                        "parent_folder_id": parent_folder_id,  # Use the determined parent folder ID
+                        "parent_dir": os.path.dirname(rel_path) if os.path.dirname(rel_path) else folder_name,
+                        "parent_folder_id": parent_folder_id,
                         "relative_path": rel_path,
                         "files": [],  # Initialize empty file list
-                        "file_count": 0
+                        "file_count": 0,
+                        "is_subfolder": True
                     }
                     
                     # Add the subfolder to Firestore
@@ -245,7 +257,9 @@ class FirebaseClient:
                     subfolder_id_map[rel_path] = subfolder_id
                     # Initialize file list for this subfolder
                     subfolder_files[subfolder_id] = []
-            
+        
+        # Second pass: upload files and assign them to the correct folders
+        for root, dirs, files in os.walk(folder_path):
             # Process each file in the current directory
             for file in files:
                 local_path = os.path.join(root, file)
@@ -292,20 +306,26 @@ class FirebaseClient:
                     # File is in a subfolder
                     subfolder_files[file_folder_id].append(file_metadata)
         
-        # Update the main folder document with root-level file information
+        # Update the main folder document with root-level file information and parent-child relationships
         self.db.collection("folders").document(folder_id).update({
             "files": file_metadata_list,
             "file_count": len(file_metadata_list),
-            "subfolders": subfolder_paths
+            "subfolders": subfolder_paths,
+            "child_folders": parent_map.get(folder_id, [])
         })
         
-        # Update each subfolder document with its files
+        # Update each subfolder document with its files and child folders
         for subfolder_id, files_in_subfolder in subfolder_files.items():
-            if files_in_subfolder:  # Only update if there are files
-                self.db.collection("folders").document(subfolder_id).update({
-                    "files": files_in_subfolder,
-                    "file_count": len(files_in_subfolder)
-                })
+            update_data = {
+                "files": files_in_subfolder,
+                "file_count": len(files_in_subfolder)
+            }
+            
+            # Add child folders information if this subfolder has children
+            if subfolder_id in parent_map:
+                update_data["child_folders"] = parent_map[subfolder_id]
+                
+            self.db.collection("folders").document(subfolder_id).update(update_data)
         
         return {
             "folder_id": folder_id,
@@ -436,9 +456,9 @@ class FirebaseClient:
         except Exception as e:
             raise Exception(f"Error downloading folder: {str(e)}")
         
-    def list_folders(self, limit=500):
+    def list_folders(self, limit=100):
         """
-        List recent folders with pagination support for large datasets.
+        List recent folders.
         
         Args:
             limit (int): Maximum number of folders to return
@@ -450,34 +470,12 @@ class FirebaseClient:
             raise ConnectionError("No internet connection available. Please connect to the internet and try again.")
             
         folders = []
+        query = self.db.collection("folders").order_by("created_at", direction=firestore.Query.DESCENDING).limit(limit)
         
-        # Use pagination to get all folders up to the limit
-        query = self.db.collection("folders").order_by("created_at", direction=firestore.Query.DESCENDING).limit(100)
-        docs_remaining = limit
-        last_doc = None
-        
-        while docs_remaining > 0:
-            # If this isn't the first page, start after the last document
-            if last_doc:
-                query = query.start_after(last_doc)
-                
-            # Get the current page of results
-            page_docs = list(query.stream())
-            if not page_docs:  # No more documents
-                break
-                
-            # Process the documents
-            for doc in page_docs:
-                data = doc.to_dict()
-                data["id"] = doc.id
-                folders.append(data)
-                
-            # Update for next iteration
-            docs_remaining -= len(page_docs)
-            last_doc = page_docs[-1]
-            
-            # Debug: Print progress
-            print(f"Retrieved {len(folders)} folders so far")
+        for doc in query.stream():
+            data = doc.to_dict()
+            data["id"] = doc.id
+            folders.append(data)
             
         return folders
         
@@ -514,7 +512,7 @@ class FirebaseClient:
         
         return folder_id
         
-    def list_files(self, limit=20, folder_id=None):
+    def list_files(self, limit=100, folder_id=None):
         """
         List recent files, optionally filtered by folder.
         
@@ -542,7 +540,7 @@ class FirebaseClient:
             
         return files
         
-    def get_cloud_structure(self, limit=500):
+    def get_cloud_structure(self, limit=200):
         """
         Get both folders and files from Firebase to display in the cloud access panel.
         

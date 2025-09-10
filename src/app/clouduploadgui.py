@@ -61,7 +61,7 @@ class CloudUploadGUI:
         # Select folder button
         self.select_folder_btn = QPushButton("Select Folder")
         self.select_folder_btn.clicked.connect(self.parent.select_folder)
-        self.select_folder_btn.setObjectName("csv_btn")
+        self.select_folder_btn.setObjectName("folder_btn")
         button_layout.addWidget(self.select_folder_btn)
         
         layout.addLayout(button_layout)
@@ -100,7 +100,7 @@ class CloudUploadGUI:
         # Close button
         self.close_btn = QPushButton("Close")
         self.close_btn.clicked.connect(self.parent.close)
-        self.close_btn.setObjectName("csv_btn")
+        self.close_btn.setObjectName("close_btn")
         layout.addWidget(self.close_btn)
         
         # Add stretch to push content to top
