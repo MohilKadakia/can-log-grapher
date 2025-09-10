@@ -42,6 +42,9 @@ class CloudAccessPanel(QDialog):
             # Get cloud data from Firebase
             self.cloud_data = self.firebase.get_cloud_structure()
             
+            # Debug: Print folder count
+            print(f"Retrieved {len(self.cloud_data['folders'])} folders from Firebase")
+            
             # Clear existing items and dictionaries
             self.gui.clear_ui()
             self.folder_items = {}

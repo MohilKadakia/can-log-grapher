@@ -227,7 +227,12 @@ class CloudAccessGUI:
                 root_folders.append(folder_item)
             
         # Second pass: build the hierarchy
-        for folder in folders:
+        # We need to handle nested subfolders properly
+        
+        # First, sort folders by path depth to ensure parents are processed before children
+        sorted_folders = sorted(folders, key=lambda f: len(f.get("path", "").split("/")))
+        
+        for folder in sorted_folders:
             parent_folder_id = folder.get("parent_folder_id")
             if parent_folder_id and parent_folder_id in folder_items_by_id:
                 # This is a subfolder, add it to its parent
@@ -236,6 +241,7 @@ class CloudAccessGUI:
                 parent_item.appendRow(current_item)
         
         # Add root folders to the tree
+        print(f"Adding {len(root_folders)} root folders to the tree")
         for folder_item in root_folders:
             self.root_item.appendRow(folder_item)
             
@@ -271,6 +277,7 @@ class CloudAccessGUI:
                                     folder_item.appendRow(subfolder_item)
         
         # Expand the folder tree to show the hierarchy
+        # Use expandAll() to show all levels of nested subfolders
         self.folder_tree.expandAll()
         
         # Ensure the root item is visible and selectable

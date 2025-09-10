@@ -115,7 +115,16 @@ class CloudUploadPanel(QDialog):
             
             # Show success message with details from the upload result
             folder_name = result["folder_name"]
+            folder_id = result["folder_id"]
             file_count = result["file_count"]
+            
+            # Debug: Verify folder was stored in Firestore
+            folder_doc = self.firebase.db.collection("folders").document(folder_id).get()
+            if folder_doc.exists:
+                print(f"Folder '{folder_name}' (ID: {folder_id}) successfully stored in Firestore")
+            else:
+                print(f"WARNING: Folder '{folder_name}' (ID: {folder_id}) not found in Firestore after upload!")
+                
             self.on_success_from_thread(f"Folder '{folder_name}' with {file_count} files uploaded successfully!")
             
         except Exception as e:

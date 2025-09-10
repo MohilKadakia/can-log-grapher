@@ -214,13 +214,24 @@ class FirebaseClient:
                 # Create individual folder document for each subfolder
                 if rel_path not in created_subfolders:
                     subfolder_id = f"{folder_id}_{rel_path.replace(os.sep, '_')}"
+                    
+                    # Determine the correct parent folder ID for nested subfolders
+                    parent_folder_id = folder_id  # Default to the main folder
+                    
+                    # For nested subfolders (more than one level deep), find the parent subfolder
+                    if os.sep in rel_path:
+                        parent_rel_path = os.path.dirname(rel_path)
+                        if parent_rel_path in subfolder_id_map:
+                            # This is a nested subfolder, set its parent to the parent subfolder
+                            parent_folder_id = subfolder_id_map[parent_rel_path]
+                    
                     subfolder_metadata = {
                         "name": os.path.basename(rel_path),
                         "path": os.path.join(cloud_base_path, rel_path).replace(os.sep, '/'),
                         "type": "folder",
                         "created_at": datetime.datetime.now().isoformat(),
-                        "parent_dir": folder_name,
-                        "parent_folder_id": folder_id,
+                        "parent_dir": os.path.basename(os.path.dirname(subfolder_path)),
+                        "parent_folder_id": parent_folder_id,  # Use the determined parent folder ID
                         "relative_path": rel_path,
                         "files": [],  # Initialize empty file list
                         "file_count": 0
@@ -425,9 +436,9 @@ class FirebaseClient:
         except Exception as e:
             raise Exception(f"Error downloading folder: {str(e)}")
         
-    def list_folders(self, limit=20):
+    def list_folders(self, limit=500):
         """
-        List recent folders.
+        List recent folders with pagination support for large datasets.
         
         Args:
             limit (int): Maximum number of folders to return
@@ -439,12 +450,34 @@ class FirebaseClient:
             raise ConnectionError("No internet connection available. Please connect to the internet and try again.")
             
         folders = []
-        query = self.db.collection("folders").order_by("created_at", direction=firestore.Query.DESCENDING).limit(limit)
         
-        for doc in query.stream():
-            data = doc.to_dict()
-            data["id"] = doc.id
-            folders.append(data)
+        # Use pagination to get all folders up to the limit
+        query = self.db.collection("folders").order_by("created_at", direction=firestore.Query.DESCENDING).limit(100)
+        docs_remaining = limit
+        last_doc = None
+        
+        while docs_remaining > 0:
+            # If this isn't the first page, start after the last document
+            if last_doc:
+                query = query.start_after(last_doc)
+                
+            # Get the current page of results
+            page_docs = list(query.stream())
+            if not page_docs:  # No more documents
+                break
+                
+            # Process the documents
+            for doc in page_docs:
+                data = doc.to_dict()
+                data["id"] = doc.id
+                folders.append(data)
+                
+            # Update for next iteration
+            docs_remaining -= len(page_docs)
+            last_doc = page_docs[-1]
+            
+            # Debug: Print progress
+            print(f"Retrieved {len(folders)} folders so far")
             
         return folders
         
@@ -509,7 +542,7 @@ class FirebaseClient:
             
         return files
         
-    def get_cloud_structure(self, limit=50):
+    def get_cloud_structure(self, limit=500):
         """
         Get both folders and files from Firebase to display in the cloud access panel.
         

@@ -21,7 +21,6 @@ class CloudUploadGUI:
         # Create widgets
         self.selection_label = None
         self.select_folder_btn = None
-        self.select_file_btn = None
         self.upload_btn = None
         self.progress_frame = None
         self.progress_label = None
@@ -64,12 +63,6 @@ class CloudUploadGUI:
         self.select_folder_btn.clicked.connect(self.parent.select_folder)
         self.select_folder_btn.setObjectName("csv_btn")
         button_layout.addWidget(self.select_folder_btn)
-        
-        # Select file button
-        self.select_file_btn = QPushButton("Select File")
-        self.select_file_btn.clicked.connect(self.parent.select_file)
-        self.select_file_btn.setObjectName("file_btn")
-        button_layout.addWidget(self.select_file_btn)
         
         layout.addLayout(button_layout)
         
@@ -123,14 +116,12 @@ class CloudUploadGUI:
         """Show the progress UI and disable buttons."""
         self.progress_frame.show()
         self.upload_btn.setEnabled(False)
-        self.select_file_btn.setEnabled(False)
         self.select_folder_btn.setEnabled(False)
     
     def hide_progress(self):
         """Hide the progress UI and enable buttons."""
         self.progress_frame.hide()
         self.upload_btn.setEnabled(True)
-        self.select_file_btn.setEnabled(True)
         self.select_folder_btn.setEnabled(True)
     
     def update_progress(self, progress, message):
