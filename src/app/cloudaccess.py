@@ -17,7 +17,7 @@ class CloudAccessPanel(QDialog):
         super().__init__(parent)
         self.parent = parent
         self.setWindowTitle("Cloud Access")
-        self.resize(1000, 700)  # Much wider and taller than other panels
+        self.resize(1200, 900)  # Much larger size for better visibility
         
         # Initialize Firebase client
         self.firebase = FirebaseClient.get_instance()
@@ -41,6 +41,9 @@ class CloudAccessPanel(QDialog):
             
             # Get cloud data from Firebase
             self.cloud_data = self.firebase.get_cloud_structure()
+            
+            # Debug: Print folder count
+            print(f"Retrieved {len(self.cloud_data['folders'])} folders from Firebase")
             
             # Clear existing items and dictionaries
             self.gui.clear_ui()
@@ -98,22 +101,84 @@ class CloudAccessPanel(QDialog):
         # Get folder data from our dictionary
         folder = self.folder_items.get(id(item))
         
-        if not folder:
-            return
-            
-        try:
-            # Clear file items dictionary for this view
-            self.file_items.clear()
-            
-            # Get files for this folder
-            folder_id = folder["id"]
-            folder_files = self.firebase.list_files(limit=100, folder_id=folder_id)
-            
-            # Populate files list
-            self.gui.populate_folder_files(folder_files, self.file_items)
+        if folder:
+            # This is a folder with a direct database entry
+            try:
+                # Clear file items dictionary for this view
+                self.file_items.clear()
                 
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error loading folder: {str(e)}")
+                # Get files for this folder - increase limit to 500 files
+                folder_id = folder["id"]
+                folder_files = self.firebase.list_files(limit=500, folder_id=folder_id)
+                
+                # Populate files list
+                self.gui.populate_folder_files(folder_files, self.file_items)
+                    
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Error loading folder: {str(e)}")
+        else:
+            # This might be a dynamically created subfolder without a direct database entry
+            # We need to find files that belong to this path
+            try:
+                # Clear file items dictionary for this view
+                self.file_items.clear()
+                
+                # Build the full path of this folder by traversing up the tree
+                folder_path = self.get_folder_path(item)
+                
+                # Find all files that have this path as a prefix in their relative_path
+                matching_files = []
+                
+                # First check if we can find a parent folder with a database entry
+                parent_item = item.parent()
+                parent_folder = None
+                while parent_item and not parent_folder:
+                    parent_folder = self.folder_items.get(id(parent_item))
+                    if not parent_folder:
+                        parent_item = parent_item.parent()
+                
+                if parent_folder:
+                    # We found a parent with a database entry, get all its files
+                    parent_folder_id = parent_folder["id"]
+                    all_files = self.firebase.list_files(limit=1000, folder_id=parent_folder_id)
+                    
+                    # Filter files that belong to this subfolder
+                    for file in all_files:
+                        file_rel_path = file.get("relative_path", "")
+                        file_dir = os.path.dirname(file_rel_path)
+                        
+                        # Check if this file is in the selected subfolder or its children
+                        if file_dir == folder_path or file_dir.startswith(folder_path + os.sep):
+                            matching_files.append(file)
+                    
+                    # Populate files list with matching files
+                    self.gui.populate_folder_files(matching_files, self.file_items)
+                else:
+                    # No parent folder found, show empty list
+                    self.gui.populate_folder_files([], self.file_items)
+                    
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Error loading subfolder: {str(e)}")
+    
+    def get_folder_path(self, item):
+        """Build the full path of a folder by traversing up the tree.
+        
+        Args:
+            item: The QStandardItem representing the folder
+            
+        Returns:
+            str: The full path of the folder
+        """
+        path_parts = []
+        current_item = item
+        
+        # Traverse up the tree until we reach the root item
+        while current_item and current_item != self.gui.root_item:
+            path_parts.insert(0, current_item.text())
+            current_item = current_item.parent()
+        
+        # Join the path parts with the OS separator
+        return os.path.join(*path_parts) if path_parts else ""
     
     def prepare_selected(self):
         """Download the selected file."""
