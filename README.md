@@ -1,44 +1,57 @@
-# CAN Log Grapher
+# CAN Log Grapher - User Guide
 
-A PyQt5-based application for parsing and visualizing CAN bus log files with Grafana integration.
+## Quick Start
+
+1. **Install Docker Desktop** (Required for dashboard features)
+   - Download from: https://www.docker.com/products/docker-desktop
+   - Install and start Docker Desktop
+
+2. **Run the Application**
+   - Double-click `CAN-Log-Grapher.exe`
+   - The app will automatically check for Docker and start the dashboard (no clicking required)
+   - The dashboard will open automatically in your browser
+
+3. **Using the Dashboard**
+   - The dashboard opens automatically at: http://localhost:3001
+   - Login with:
+     - Username: `uwfe`
+     - Password: `uwfepassword`
 
 ## Features
 
-- Upload and parse TXT or CSV files containing raw or parsed CAN log data respectively
-- Filter data by sender IDs using checkboxes
-- Real-time data serving to Grafana via HTTP server
-- Support for both single file and batch folder processing
+- Upload CAN log files (CSV or TXT format)
+- Filter and select specific signals
+- Automatic Grafana dashboard integration
+- Cloud upload and access capabilities
 
-## Installation
+## Troubleshooting
 
-Read `docs/DeveloperGuide.md`
+**"Docker Required" message:**
+- Install Docker Desktop and make sure it's running
+- Restart the application after installing Docker
 
-## Usage
+**Dashboard not opening:**
+- Check that Docker Desktop is running
+- Wait a few seconds for Grafana to start up
+- Try accessing http://localhost:3001 manually
+- Make sure you're logged in with username: `uwfe` and password: `uwfepassword`
 
-For more information read `docs/SetupGuide.md`
+**Application won't start:**
+- Make sure all files are in the same folder as the .exe
+- Run as administrator if needed
+- Check that antivirus isn't blocking the application
 
-The application (`main.py`) will:
-1. Start a background HTTP server for Grafana integration
-2. Open a GUI for file selection and data filtering
-3. Allow you to upload CSV files or select entire folders
+## Files Included
 
-### Project Structure
-```bash
-can-log-grapher/
-├── src/
-│   ├── main.py               # Application entry point
-│   │
-│   ├── /app                  # PyQT Application & HTTP Server
-│   ├──── /threading_scripts  # Important threading scripts
-│   │
-│   ├── /parsing              # Log parsing scripts
-│   ├──── /csv_reading        # Scripts to parse CSV (parsed) logs
-│   ├──── /raw_parsing        # Scripts to parse TXT (raw) logs
-│   │
-│   ├── /grafana/etc          # Grafana initilization files
-│   └── docker-compose.yml    # Docker compose file
-└── docs/                     # Documentation
-```
-## API Endpoints
+- `CAN-Log-Grapher.exe` - Main application
+- `docker-compose.yml` - Grafana configuration
+- `grafana/` - Dashboard configuration files
+- `public/` - Application logo files
+- `README.md` - This file
 
-The HTTP server provides endpoints for Grafana to consume the processed data. Read more in `API.md`
+## Support
+
+If you encounter issues, please check that:
+1. Docker Desktop is installed and running
+2. All files are in the same directory as the .exe
+3. You have sufficient permissions to run the application

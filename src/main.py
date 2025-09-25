@@ -1,6 +1,8 @@
 import sys
 import argparse
-from PyQt5.QtWidgets import QApplication
+import socket
+import os
+from PyQt5.QtWidgets import QApplication, QMessageBox
 
 from app.gui import CANLogUploader
 

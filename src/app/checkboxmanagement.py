@@ -148,3 +148,8 @@ class CheckboxManager(QObject):
             if checkbox.isChecked():
                 selected_senders.add(sender)
         return selected_senders
+    
+    def get_all_senders(self):
+        """Get set of all available sender names."""
+        return set(self.parent.sender_checkboxes.keys())
+    

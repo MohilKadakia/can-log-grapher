@@ -3,6 +3,11 @@ import os
 import cantools
 from pathlib import Path
 import concurrent.futures
+import logging
+
+# Set up logging for this module
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def process_message(message: str, fileName) -> tuple:
     if len(message) < 17 or message[8] != 'x':
@@ -89,21 +94,33 @@ def parse_raw_folder(folder_path: str):
     Returns:
         List of paths to the generated CSV files
     """
+    logger.info(f"Starting to parse raw folder: {folder_path}")
     folder = Path(folder_path)
     files = list(folder.rglob('*.TXT'))
     output_paths = []
     
-    print(f"Number of files: {len(files)}")
+    logger.info(f"Found {len(files)} TXT files to process")
     
-    with concurrent.futures.ProcessPoolExecutor() as executor:
+    # Use ThreadPoolExecutor instead of ProcessPoolExecutor to avoid creating new app instances
+    # This processes files concurrently within the same Python process
+    logger.info("Starting concurrent file processing with ThreadPoolExecutor")
+    with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = []
         for file_path in files:
+            logger.info(f"Submitting file for processing: {file_path.name}")
             futures.append(executor.submit(run_script, folder, file_path))
         
         # Collect results
+        logger.info("Collecting processing results")
         for future in concurrent.futures.as_completed(futures):
-            output_paths.append(future.result())
+            try:
+                result = future.result()
+                output_paths.append(result)
+                logger.info(f"Successfully processed file, output: {result}")
+            except Exception as e:
+                logger.error(f"Error processing file: {e}")
     
+    logger.info(f"Folder parsing complete. Generated {len(output_paths)} CSV files")
     return output_paths
 def parse_raw_file(file_path: str):
     """
@@ -115,16 +132,20 @@ def parse_raw_file(file_path: str):
     Returns:
         Path to the generated CSV file
     """
+    logger.info(f"Starting to parse single raw file: {file_path}")
     file_path = Path(file_path)
     folder_path = file_path.parent
     
     # Use the existing run_script function to process the file
+    logger.info(f"Processing file with run_script: {file_path.name}")
     result_path = run_script(folder_path, file_path)
+    logger.info(f"Single file parsing complete. Output: {result_path}")
     
     return result_path
 
 if __name__ == '__main__':
     # This code runs when the script is executed directly (not imported)
+    # Only run if this script is being executed directly, not imported
     if len(sys.argv) > 1:
         # Command-line usage still works
         if len(sys.argv) == 3 and sys.argv[2] == "-All":

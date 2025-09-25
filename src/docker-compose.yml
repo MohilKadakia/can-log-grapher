@@ -2,7 +2,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3000:3000"
+      - "3001:3000"
       - "8000:8000"
     volumes:
       - grafana-storage:/var/lib/grafana
@@ -11,6 +11,9 @@ services:
       - GF_SECURITY_ADMIN_USER=uwfe
       - GF_SECURITY_ADMIN_PASSWORD=uwfepassword
       - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
+    # Add networking configuration to ensure host access works in executable mode
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
       
 volumes:
   grafana-storage:

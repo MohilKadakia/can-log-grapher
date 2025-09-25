@@ -1,5 +1,5 @@
 import os
-import threading
+# Threading import removed - all uploads are now synchronous
 from PyQt5.QtWidgets import (
     QDialog, QFileDialog, QMessageBox, QApplication
 )
@@ -62,11 +62,10 @@ class CloudUploadPanel(QDialog):
             self.upload_folder_async(self.selected_path)
     
     def upload_file_async(self, file_path):
-        """Upload a file in a background thread."""
-        thread = threading.Thread(target=self._upload_file_thread, args=(file_path,), daemon=True)
-        thread.start()
+        """Upload a file synchronously (no threading)."""
+        self._upload_file_sync(file_path)
         
-    def _upload_file_thread(self, file_path):
+    def _upload_file_sync(self, file_path):
         """Thread function to upload a file."""
         try:
             # Update progress
@@ -91,11 +90,10 @@ class CloudUploadPanel(QDialog):
             self.on_error_from_thread(f"Error uploading file: {str(e)}")
     
     def upload_folder_async(self, folder_path):
-        """Upload a folder in a background thread."""
-        thread = threading.Thread(target=self._upload_folder_thread, args=(folder_path,), daemon=True)
-        thread.start()
+        """Upload a folder synchronously (no threading)."""
+        self._upload_folder_sync(folder_path)
         
-    def _upload_folder_thread(self, folder_path):
+    def _upload_folder_sync(self, folder_path):
         """Thread function to upload a folder."""
         try:
             # Update progress

@@ -1,14 +1,16 @@
 import os
+import sys
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QPushButton, QFileDialog, QMessageBox, QLabel, 
     QCheckBox, QScrollArea, QFrame, QProgressBar, QHBoxLayout, QLineEdit, QDesktopWidget,
     QDialog, QApplication
 )
 from io import StringIO
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPixmap
-import threading
+# Threading import removed - all processing is now synchronous
 import re
+import webbrowser
 
 from app.server import run_server
 from app.threadmanagement import ThreadManager
@@ -19,6 +21,7 @@ from app.threading_scripts.shared_data import shared_data_manager
 from app.cloudupload import CloudUploadPanel
 from app.cloudaccess import CloudAccessPanel
 from api.login import LoginDialog
+from app.docker_manager import DockerManager
 
 
 class CANLogUploader(QWidget):
@@ -33,8 +36,8 @@ class CANLogUploader(QWidget):
         self.thread_manager.parsing_completed.connect(self.on_parsing_completed)
         self.thread_manager.processing_completed.connect(self.on_processing_completed)
 
-        server_thread = threading.Thread(target=run_server, daemon=True)
-        server_thread.start()
+        # Start HTTP server in background thread
+        self.start_http_server()
 
         super().__init__()
         
@@ -47,6 +50,12 @@ class CANLogUploader(QWidget):
         self.thread_manager.progress_update.connect(self.ui_transitions.update_progress_text)
         self.thread_manager.show_loading.connect(self.ui_transitions.show_loading_screen)
         self.thread_manager.hide_loading.connect(self.ui_transitions.hide_loading_screen)
+        
+        # Initialize Docker manager
+        self.docker_manager = DockerManager(self)
+        
+        # Start Docker check after a short delay to let UI load
+        QTimer.singleShot(2000, self.docker_manager.check_docker_availability)
         
         self.gui()
         
@@ -233,8 +242,16 @@ class CANLogUploader(QWidget):
         
         logo_label = QLabel()
         logo_label.setObjectName("logo_label")
-        logo_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 
-                                "public", "UWFElogo.png")
+        
+        # Handle path differently for executable vs development mode
+        if getattr(sys, 'frozen', False):
+            # Running as compiled executable
+            app_path = os.path.dirname(sys.executable)
+            logo_path = os.path.join(app_path, "public", "UWFElogo.png")
+        else:
+            # Running as Python script
+            logo_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 
+                                    "public", "UWFElogo.png")
         logo_pixmap = QPixmap(logo_path)
         # Scale the logo to an appropriate size (adjust width as needed)
         logo_pixmap = logo_pixmap.scaledToWidth(400, Qt.SmoothTransformation)
@@ -271,8 +288,37 @@ class CANLogUploader(QWidget):
         # Create checkboxes for senders
         self.checkbox_manager.create_sender_checkboxes()
         
-        # Update server with filtered data
-        self.update_server_filtered()
+        # Auto-update server with all senders after checkboxes are created
+        from PyQt5.QtCore import QTimer
+        QTimer.singleShot(500, self.auto_update_server)
+    
+    
+    def auto_update_server(self):
+        """Auto-update server with all senders after a short delay."""
+        from PyQt5.QtWidgets import QMessageBox
+        
+        # Get all available senders
+        all_senders = self.checkbox_manager.get_all_senders()
+        
+        if all_senders:
+            # Select all senders automatically
+            for sender in all_senders:
+                if sender in self.sender_checkboxes:
+                    self.sender_checkboxes[sender].setChecked(True)
+            
+            # Update server with all data automatically
+            success = self.thread_manager.update_server_filtered(all_senders)
+            
+            if success:
+                QMessageBox.information(self, "Data Uploaded", 
+                    f"Successfully uploaded data with {len(all_senders)} signals to Grafana!\n\n"
+                    f"Visit http://localhost:3001 to view your dashboard.")
+            else:
+                QMessageBox.warning(self, "Upload Failed", 
+                    "Failed to upload data to server. Please try manually selecting signals and clicking 'Update Server'.")
+        else:
+            QMessageBox.warning(self, "No Data", 
+                "No signals found in the selected files. Please check your data format.")
     
     def on_processing_completed(self, csv_bytes):
         """Handle completion of CSV processing."""
@@ -304,8 +350,58 @@ class CANLogUploader(QWidget):
         except FileNotFoundError:
             print(f"CSS file {css_file} not found, using default styles")
 
+    def start_http_server(self):
+        """Start HTTP server in background thread"""
+        import threading
+        from app.server import run_server
+        
+        def run_server_thread():
+            try:
+                # Check if port is already in use (prevents multiple instances)
+                import socket
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                result = sock.connect_ex(('localhost', 8000))
+                sock.close()
+                
+                if result == 0:
+                    print("HTTP server already running on port 8000")
+                    return
+                
+                print("Starting HTTP server on port 8000...")
+                run_server()
+            except Exception as e:
+                print(f"HTTP server error: {e}")
+                # Fail silently - app can work without server
+        
+        # Start server in daemon thread so it doesn't prevent app shutdown
+        server_thread = threading.Thread(target=run_server_thread, daemon=True)
+        server_thread.start()
+        print("HTTP server thread started")
+
+    def _safe_run_server(self):
+        """Safely run the HTTP server with error handling for .exe deployment"""
+        try:
+            # Check if port is already in use (prevents multiple instances)
+            import socket
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result = sock.connect_ex(('localhost', 8000))
+            sock.close()
+            
+            if result == 0:
+                print("HTTP server already running on port 8000")
+                return
+            
+            # Start the server
+            run_server()
+        except Exception as e:
+            print(f"HTTP server error: {e}")
+            # Fail silently - app can work without server
+
     def closeEvent(self, event):
         """Clean up resources when window closes."""
-        # Clean up resources using thread manager
+        # Clean up Docker resources
+        self.docker_manager.cleanup()
+        
+        # Clean up other resources using thread manager
         self.thread_manager.cleanup()
         event.accept()
