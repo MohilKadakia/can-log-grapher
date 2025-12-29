@@ -312,7 +312,7 @@ class CANLogUploader(QWidget):
             if success:
                 QMessageBox.information(self, "Data Uploaded", 
                     f"Successfully uploaded data with {len(all_senders)} signals to Grafana!\n\n"
-                    f"Visit http://localhost:3001 to view your dashboard.")
+                    f"Visit http://localhost:3000 to view your dashboard.")
             else:
                 QMessageBox.warning(self, "Upload Failed", 
                     "Failed to upload data to server. Please try manually selecting signals and clicking 'Update Server'.")

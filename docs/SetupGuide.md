@@ -34,7 +34,7 @@ python main.py
 
 # Start the Grafana Dashboard
 docker-compose up -d 
-# The dashboard can be accessed from localhost:3001
+# The dashboard can be accessed from localhost:3000
 # Username: uwfe
 # Password: uwfepassword
 ```
@@ -92,7 +92,7 @@ To run this application you will need:
 
 The main.py file should open up an application for you to upload parsed CAN files to.
 
-To access a graph of this, you must run the docker-compose command (as shown above in step 5 of the installation), and go to `localhost:3001`. It will prompt you to sign in, the sign in information is:
+To access a graph of this, you must run the docker-compose command (as shown above in step 5 of the installation), and go to `localhost:3000`. It will prompt you to sign in, the sign in information is:
 
 **Username:** uwfe 
 
@@ -172,7 +172,7 @@ To run both the application and Grafana dashboard:
    python main.py
    ```
 
-3. **Access the dashboard** at `http://localhost:3001`
+3. **Access the dashboard** at `http://localhost:3000`
    - Username: `uwfe`
    - Password: `uwfepassword`
 

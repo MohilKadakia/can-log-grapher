@@ -7,6 +7,7 @@ import PyInstaller.__main__
 import os
 import shutil
 import sys
+import re
 
 def clean_previous_builds():
     """Clean up previous build artifacts"""
@@ -130,6 +131,10 @@ def copy_additional_files():
         ('src/grafana', 'final-sharable-app/grafana'),
         # Copy logo file so it appears in the application
         ('public/UWFElogo.png', 'final-sharable-app/public/UWFElogo.png'),
+        # Copy .env file for Firebase credentials
+        ('.env', 'final-sharable-app/.env'),
+        # Copy Firebase service account JSON file
+        ('uwfe-test-firebase.json', 'final-sharable-app/uwfe-test-firebase.json'),
     ]
     
     for src, dst in files_to_copy:
@@ -147,6 +152,31 @@ def copy_additional_files():
                 print(f"   ✓ Copied {src}/ → {dst}/")
         except Exception as e:
             print(f"   ⚠️  Failed to copy {src}: {e}")
+    
+    # Update .env file path to use relative path
+    env_path = 'final-sharable-app/.env'
+    if os.path.exists(env_path):
+        try:
+            # Read the .env file
+            with open(env_path, 'r', encoding='utf-8') as f:
+                env_content = f.read()
+            
+            # Replace absolute path with relative path
+            # Update the FIREBASE_SERVICE_ACCOUNT_PATH to use relative path
+            # Handle both quoted and unquoted paths
+            env_content = re.sub(
+                r'FIREBASE_SERVICE_ACCOUNT_PATH=["\']?[^"\'\n]*["\']?',
+                'FIREBASE_SERVICE_ACCOUNT_PATH=./uwfe-test-firebase.json',
+                env_content
+            )
+            
+            # Write back the updated content
+            with open(env_path, 'w', encoding='utf-8') as f:
+                f.write(env_content)
+            
+            print(f"   ✓ Updated .env file paths to be relative")
+        except Exception as e:
+            print(f"   ⚠️  Failed to update .env file: {e}")
 
 def create_user_readme():
     """Create a simple README for end users"""

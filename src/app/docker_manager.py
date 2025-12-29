@@ -82,7 +82,7 @@ class DockerManager:
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setText(
             "Docker detected! Starting Grafana dashboard automatically...\n\n"
-            "Dashboard will be available at: http://localhost:3001\n"
+            "Dashboard will be available at: http://localhost:3000\n"
             "Username: uwfe\n"
             "Password: uwfepassword"
         )
@@ -174,14 +174,14 @@ class DockerManager:
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setText(
                 "Grafana dashboard started successfully!\n\n"
-                "Opening dashboard at: http://localhost:3001\n\n"
+                "Opening dashboard at: http://localhost:3000\n\n"
                 "Username: uwfe\n"
                 "Password: uwfepassword"
             )
             msg_box.setStandardButtons(QMessageBox.Ok)
             
             # Automatically open the browser
-            webbrowser.open("http://localhost:3001")
+            webbrowser.open("http://localhost:3000")
             
             # Show the message for a brief moment, then auto-close
             msg_box.show()

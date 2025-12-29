@@ -6,6 +6,7 @@ parsed_files/
 firebase_service_account.json
 .env
 uwfe-firebase-key.json
+uwfe-test-firebase.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

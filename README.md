@@ -12,7 +12,7 @@
    - The dashboard will open automatically in your browser
 
 3. **Using the Dashboard**
-   - The dashboard opens automatically at: http://localhost:3001
+   - The dashboard opens automatically at: http://localhost:3000
    - Login with:
      - Username: `uwfe`
      - Password: `uwfepassword`
@@ -33,7 +33,7 @@
 **Dashboard not opening:**
 - Check that Docker Desktop is running
 - Wait a few seconds for Grafana to start up
-- Try accessing http://localhost:3001 manually
+- Try accessing http://localhost:3000 manually
 - Make sure you're logged in with username: `uwfe` and password: `uwfepassword`
 
 **Application won't start:**
